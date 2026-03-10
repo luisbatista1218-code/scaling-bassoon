@@ -266,8 +266,44 @@ async function inicializar() {
 async function carregarProdutos() {
   try {
     const response = await fetch(API_URL_LEITURA);
-    produtos = await response.json();
-    console.log('✅ Produtos carregados:', produtos.length);
+    const dados = await response.json();
+    
+    // Mapeamento flexível das colunas
+    produtos = dados.map(item => {
+      // Tenta encontrar os valores em diferentes formatos
+      const id = item.id || item.ID || item.Id || item[''] || '';
+      const nome = item.nome || item.Nome || item.NOME || item[''] || '';
+      const preco = item.preco || item.Preco || item.PREÇO || item.preço || item[''] || '0';
+      const estoque = item.estoque || item.Estoque || item.ESTOQUE || item[''] || '';
+      const validade = item.validade || item.Validade || item.VALIDADE || item[''] || '';
+      
+      // Se não achou pelos nomes, tenta por posição (array)
+      if (!nome && Array.isArray(item)) {
+        return {
+          id: item[0] || '',
+          nome: item[1] || '',
+          preco: item[2] || '0',
+          estoque: item[3] || '',
+          validade: item[4] || ''
+        };
+      }
+      
+      return {
+        id: id,
+        nome: nome,
+        preco: preco,
+        estoque: estoque,
+        validade: validade
+      };
+    });
+    
+    console.log('✅ Produtos carregados:', produtos);
+    
+    // Debug: mostra o primeiro produto para ver se está correto
+    if (produtos.length > 0) {
+      console.log('Primeiro produto:', produtos[0]);
+    }
+    
   } catch (error) {
     console.error('❌ Erro ao carregar produtos:', error);
     produtos = [];
