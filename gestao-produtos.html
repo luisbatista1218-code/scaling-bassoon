@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gestão de Produtos</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  background: #f2f4f7;
+  display: flex;
+  justify-content: center;
+}
+
+.app {
+  width: 100%;
+  max-width: 420px;
+  min-height: 100vh;
+  background: #fff;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: #2f6fd6;
+  color: #fff;
+  padding: 18px;
+  font-size: 20px;
+  font-weight: bold;
+  text-align: center;
+}
+
+.content {
+  padding: 20px;
+  flex: 1;
+}
+
+.search-box {
+  display: flex;
+  gap: 10px;
+  margin-top: 15px;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.scan-btn {
+  background: #2f6fd6;
+  color: white;
+  border: none;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.btn-consultar {
+  width: 100%;
+  margin-top: 15px;
+  background: #2f6fd6;
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 18px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.btn-admin {
+  width: 100%;
+  margin: 8px 0;
+  background: #2f6fd6;
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.btn-admin.sair {
+  background: #dc3545;
+}
+
+.btn-voltar {
+  width: 100%;
+  margin-top: 15px;
+  background: #6c757d;
+  color: white;
+  border: none;
+  padding: 12px;
+  font-size: 16px;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.card {
+  background: #f8f9fb;
+  border-radius: 10px;
+  padding: 15px;
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 18px;
+}
+
+.card strong {
+  font-size: 20px;
+}
+
+.estoque strong { color: #2e9e3f; }
+.validade strong { color: #d68b2f; }
+.preco strong { color: #333; }
+
+.acao-card {
+  background: #f8f9fb;
+  border-radius: 10px;
+  padding: 20px;
+  margin-top: 15px;
+}
+
+.acao-card h3 {
+  margin-bottom: 15px;
+  color: #2f6fd6;
+}
+
+.acao-card input,
+.acao-card select {
+  width: 100%;
+  padding: 12px;
+  margin: 8px 0;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+}
+
+.acao-card button {
+  width: 100%;
+  margin-top: 15px;
+  background: #2f6fd6;
+  color: white;
+  border: none;
+  padding: 14px;
+  font-size: 16px;
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+.footer {
+  display: flex;
+  justify-content: space-around;
+  background: #fff;
+  border-top: 1px solid #ddd;
+  padding: 12px 0;
+}
+
+.footer button {
+  background: none;
+  border: none;
+  font-size: 14px;
+  color: #555;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.mensagem {
+  padding: 12px;
+  margin: 10px 0;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.mensagem.sucesso {
+  background: #d4edda;
+  color: #155724;
+}
+
+.mensagem.erro {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.loading {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-size: 16px;
+}
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <div class="header" id="header">Gestão de Produtos</div>
+  <div class="content" id="content">
+    <div class="loading">⏳ Carregando produtos...</div>
+  </div>
+  <div class="footer">
+    <button onclick="mostrarInicio()">🏠<span>Início</span></button>
+    <button onclick="mostrarConsulta()">🔍<span>Buscar</span></button>
+    <button onclick="sairDoSistema()">🚪<span>Sair</span></button>
+  </div>
+</div>
+
+<script>
+// ============================================
+// CONFIGURAÇÃO
+// ============================================
+const PLANILHA_ID = '1LxDTFAteG6bJppvJOp_9SnMBA72-1hEtyy9NCbRrl48';
+const API_URL_LEITURA = `https://opensheet.elk.sh/${PLANILHA_ID}/1`;
+const SCRIPT_URL_ESCRITA = 'https://script.google.com/macros/s/AKfycbyTJEfr1u5zrKBXN9Jt0CpC66UAFpnHl05iYih5gqXYHUC9tY5lgxCqZ4gYEo2t-gHp/exec';
+const ADMIN_PASSWORD = 'admin123';
+
+let produtos = [];
+let usuarioAdmin = false;
+
+// ============================================
+// INICIALIZAÇÃO
+// ============================================
+async function inicializar() {
+  await carregarProdutos();
+  mostrarInicio();
+}
+
+// ============================================
+// CARREGAR PRODUTOS DA PLANILHA (LEITURA)
+// ============================================
+async function carregarProdutos() {
+  try {
+    console.log('🔄 Carregando produtos...');
+    const response = await fetch(API_URL_LEITURA);
+
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+
+    const dados = await response.json();
+    console.log('📦 Dados brutos:', dados);
+
+    if (!dados || dados.length === 0) {
+      console.log('⚠️ Nenhum produto encontrado');
+      produtos = [];
+      return;
+    }
+
+    produtos = dados
+      .map(item => ({
+        id:       String(item.id       || item.ID       || '').trim(),
+        nome:     String(item.nome     || item.Nome     || item.produto || item.Produto || '').trim(),
+        preco:    String(item.preco    || item.Preco    || item['preço'] || item['PREÇO'] || '0').trim(),
+        estoque:  String(item.estoque  || item.Estoque  || '').trim(),
+        validade: String(item.validade || item.Validade || '').trim()
+      }))
+      .filter(p => p.nome !== ''); // ignora linhas vazias
+
+    console.log('✅ Produtos carregados:', produtos);
+
+  } catch (error) {
+    console.error('❌ Erro ao carregar produtos:', error);
+    produtos = [];
+  }
+}
+
+// ============================================
+// SALVAR NO GOOGLE SHEETS (ESCRITA) — CORRIGIDO
+// Envia a ação para o Apps Script saber o que fazer
+// Usa Content-Type text/plain para evitar preflight CORS
+// ============================================
+async function salvarNoSheet(dados) {
+  try {
+    console.log('💾 Enviando para o Apps Script:', dados);
+
+    const response = await fetch(SCRIPT_URL_ESCRITA, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain' }, // evita erro de CORS preflight
+      body: JSON.stringify(dados)
+    });
+
+    const resultado = await response.json();
+    console.log('📬 Resposta do servidor:', resultado);
+
+    return resultado.success === true;
+
+  } catch (error) {
+    console.error('❌ Erro ao salvar:', error);
+    return false;
+  }
+}
+
+// ============================================
+// CONSULTAR PRODUTO POR NOME
+// ============================================
+function consultarPorNome(nome) {
+  if (!nome || nome.trim() === '') {
+    mostrarMensagem('Digite um nome para consultar', 'erro');
+    return null;
+  }
+
+  const nomeBusca = nome.toLowerCase().trim();
+  const produto = produtos.find(p =>
+    p.nome && p.nome.toLowerCase().includes(nomeBusca)
+  );
+
+  if (!produto) {
+    mostrarMensagem('❌ Produto não encontrado', 'erro');
+    return null;
+  }
+
+  return produto;
+}
+
+// ============================================
+// MOSTRAR RESULTADO DA CONSULTA
+// ============================================
+function mostrarResultadoConsulta(produto) {
+  const preco = parseFloat(produto.preco) || 0;
+
+  let html = `
+    <div class="card preco">
+      <span>${produto.nome}</span>
+      <strong>R$ ${preco.toFixed(2)}</strong>
+    </div>
+  `;
+
+  if (produto.estoque && produto.estoque.trim() !== '') {
+    html += `
+      <div class="card estoque">
+        <span>Estoque</span>
+        <strong>${produto.estoque} unidades</strong>
+      </div>
+    `;
+  }
+
+  if (produto.validade && produto.validade.trim() !== '') {
+    html += `
+      <div class="card validade">
+        <span>Validade</span>
+        <strong>${produto.validade}</strong>
+      </div>
+    `;
+  }
+
+  document.getElementById('header').innerHTML = '🔍 Resultado';
+  document.getElementById('content').innerHTML = `
+    <h3>Resultado da Consulta</h3>
+    ${html}
+    <button class="btn-voltar" onclick="mostrarConsulta()">🔄 Nova Consulta</button>
+  `;
+}
+
+// ============================================
+// TELA DE CONSULTA
+// ============================================
+function mostrarConsulta() {
+  document.getElementById('header').innerHTML = '🔍 Consulta de Produtos';
+  document.getElementById('content').innerHTML = `
+    <h3>Consulta de Produtos</h3>
+    <p>Digite o nome do produto:</p>
+
+    <div class="search-box">
+      <input type="text" id="nomeBusca" placeholder="Ex: Pizza, Coca-cola..."
+        autocomplete="off"
+        onkeydown="if(event.key==='Enter') fazerConsulta()">
+      <button class="scan-btn" onclick="simularScan()" title="Produto aleatório">📷</button>
+    </div>
+
+    <button class="btn-consultar" onclick="fazerConsulta()">Consultar</button>
+
+    <div id="mensagem"></div>
+  `;
+}
+
+function fazerConsulta() {
+  const nome = document.getElementById('nomeBusca').value;
+  const produto = consultarPorNome(nome);
+  if (produto) mostrarResultadoConsulta(produto);
+}
+
+function simularScan() {
+  const nomes = produtos.filter(p => p.nome).map(p => p.nome);
+  if (nomes.length > 0) {
+    const input = document.getElementById('nomeBusca');
+    if (input) input.value = nomes[Math.floor(Math.random() * nomes.length)];
+  }
+}
+
+// ============================================
+// TELA INICIAL
+// ============================================
+function mostrarInicio() {
+  document.getElementById('header').innerHTML = '🏠 Início';
+  document.getElementById('content').innerHTML = `
+    <h3>Bem-vindo ao Sistema</h3>
+    <p style="margin: 10px 0 20px;">Escolha uma opção abaixo:</p>
+
+    <button class="btn-admin" onclick="mostrarConsulta()">
+      🔍 Consultar Produtos
+    </button>
+
+    <button class="btn-admin" onclick="mostrarAdmin()">
+      👑 Administração
+    </button>
+
+    <div style="margin-top: 30px; text-align: center; color: #666;">
+      <small>Cliente: visualize preços e estoque<br>Admin: gerencie produtos</small>
+    </div>
+  `;
+}
+
+// ============================================
+// PAINEL ADMIN
+// ============================================
+function mostrarAdmin() {
+  if (!usuarioAdmin) {
+    const senha = prompt('🔐 Digite a senha de administrador:');
+    if (senha === ADMIN_PASSWORD) {
+      usuarioAdmin = true;
+    } else {
+      alert('❌ Senha incorreta!');
+      mostrarInicio();
+      return;
+    }
+  }
+
+  document.getElementById('header').innerHTML = '👑 Administração';
+  document.getElementById('content').innerHTML = `
+    <h3>Painel Administrativo</h3>
+
+    <button class="btn-admin" onclick="mostrarCadastro()">
+      ➕ Cadastrar Novo Produto
+    </button>
+    <button class="btn-admin" onclick="mostrarRemover()">
+      🗑️ Remover Produto
+    </button>
+    <button class="btn-admin" onclick="mostrarAtualizarPreco()">
+      💰 Atualizar Preço
+    </button>
+    <button class="btn-admin" onclick="mostrarAtualizarEstoque()">
+      📦 Atualizar Estoque
+    </button>
+    <button class="btn-admin" onclick="mostrarAtualizarValidade()">
+      📅 Atualizar Validade
+    </button>
+    <button class="btn-admin sair" onclick="sairAdmin()">
+      🚪 Sair do Painel Admin
+    </button>
+
+    <div id="mensagem"></div>
+  `;
+}
+
+// ============================================
+// CADASTRAR PRODUTO — usa acao: 'cadastrar'
+// ============================================
+function mostrarCadastro() {
+  document.getElementById('content').innerHTML = `
+    <div class="acao-card">
+      <h3>➕ Cadastrar Novo Produto</h3>
+      <input type="text"   id="nomeProduto"     placeholder="Nome do produto *">
+      <input type="number" id="precoProduto"     placeholder="Preço *" step="0.01" min="0">
+      <input type="number" id="estoqueProduto"   placeholder="Estoque (opcional)" min="0">
+      <input type="text"   id="validadeProduto"  placeholder="Validade (opcional — Ex: 31/12/2025)">
+      <button onclick="cadastrarProduto()">✅ Cadastrar Produto</button>
+    </div>
+    <button class="btn-voltar" onclick="mostrarAdmin()">← Voltar ao Admin</button>
+    <div id="mensagem"></div>
+  `;
+}
+
+async function cadastrarProduto() {
+  const nome     = document.getElementById('nomeProduto').value.trim();
+  const preco    = document.getElementById('precoProduto').value.trim();
+  const estoque  = document.getElementById('estoqueProduto').value.trim();
+  const validade = document.getElementById('validadeProduto').value.trim();
+
+  if (!nome || !preco) {
+    mostrarMensagem('⚠️ Nome e preço são obrigatórios!', 'erro');
+    return;
+  }
+
+  const novoId = produtos.length > 0
+    ? Math.max(...produtos.map(p => Number(p.id) || 0)) + 1
+    : 1;
+
+  const novoProduto = {
+    id: novoId.toString(),
+    nome,
+    preco,
+    estoque:  estoque  || '',
+    validade: validade || ''
+  };
+
+  mostrarMensagem('⏳ Cadastrando...', 'sucesso');
+
+  // CORRIGIDO: envia acao: 'cadastrar'
+  const sucesso = await salvarNoSheet({ acao: 'cadastrar', produtos: [novoProduto] });
+
+  if (sucesso) {
+    await carregarProdutos();
+    mostrarMensagem('✅ Produto cadastrado com sucesso!', 'sucesso');
+    setTimeout(() => mostrarAdmin(), 2000);
+  } else {
+    mostrarMensagem('❌ Erro ao cadastrar produto. Verifique o Apps Script.', 'erro');
+  }
+}
+
+// ============================================
+// REMOVER PRODUTO — usa acao: 'remover'
+// ============================================
+function mostrarRemover() {
+  document.getElementById('content').innerHTML = `
+    <div class="acao-card">
+      <h3>🗑️ Remover Produto</h3>
+      <select id="selectProduto">
+        <option value="">Selecione um produto...</option>
+        ${produtos.filter(p => p.nome).map(p =>
+          `<option value="${p.id}">${p.nome}</option>`
+        ).join('')}
+      </select>
+      <button onclick="removerProduto()">🗑️ Remover Produto</button>
+    </div>
+    <button class="btn-voltar" onclick="mostrarAdmin()">← Voltar ao Admin</button>
+    <div id="mensagem"></div>
+  `;
+}
+
+async function removerProduto() {
+  const id = document.getElementById('selectProduto').value;
+
+  if (!id) {
+    mostrarMensagem('⚠️ Selecione um produto!', 'erro');
+    return;
+  }
+
+  if (!confirm('Tem certeza que deseja remover este produto? Esta ação não pode ser desfeita.')) return;
+
+  const produto = produtos.find(p => p.id === id);
+  mostrarMensagem('⏳ Removendo...', 'sucesso');
+
+  // CORRIGIDO: envia acao: 'remover' — o Apps Script deleta a linha
+  const sucesso = await salvarNoSheet({ acao: 'remover', produtos: [{ id }] });
+
+  if (sucesso) {
+    produtos = produtos.filter(p => p.id !== id);
+    mostrarMensagem(`✅ ${produto ? produto.nome : 'Produto'} removido com sucesso!`, 'sucesso');
+    setTimeout(() => mostrarAdmin(), 2000);
+  } else {
+    mostrarMensagem('❌ Erro ao remover produto. Verifique o Apps Script.', 'erro');
+  }
+}
+
+// ============================================
+// ATUALIZAR PREÇO — usa acao: 'atualizar'
+// ============================================
+function mostrarAtualizarPreco() {
+  document.getElementById('content').innerHTML = `
+    <div class="acao-card">
+      <h3>💰 Atualizar Preço</h3>
+      <select id="selectProduto">
+        <option value="">Selecione um produto...</option>
+        ${produtos.filter(p => p.nome).map(p =>
+          `<option value="${p.id}">${p.nome} — R$ ${parseFloat(p.preco || 0).toFixed(2)}</option>`
+        ).join('')}
+      </select>
+      <input type="number" id="novoValor" placeholder="Novo preço" step="0.01" min="0">
+      <button onclick="atualizarPreco()">💰 Atualizar Preço</button>
+    </div>
+    <button class="btn-voltar" onclick="mostrarAdmin()">← Voltar ao Admin</button>
+    <div id="mensagem"></div>
+  `;
+}
+
+async function atualizarPreco() {
+  const id       = document.getElementById('selectProduto').value;
+  const novoPreco = document.getElementById('novoValor').value.trim();
+
+  if (!id || !novoPreco) {
+    mostrarMensagem('⚠️ Selecione um produto e digite o novo preço!', 'erro');
+    return;
+  }
+
+  const produto = produtos.find(p => p.id === id);
+  const atualizado = { ...produto, preco: novoPreco };
+
+  mostrarMensagem('⏳ Atualizando...', 'sucesso');
+
+  // CORRIGIDO: envia acao: 'atualizar' — o Apps Script edita a linha existente
+  const sucesso = await salvarNoSheet({ acao: 'atualizar', produtos: [atualizado] });
+
+  if (sucesso) {
+    await carregarProdutos();
+    mostrarMensagem(`✅ Preço de ${produto.nome} atualizado para R$ ${parseFloat(novoPreco).toFixed(2)}!`, 'sucesso');
+    setTimeout(() => mostrarAdmin(), 2000);
+  } else {
+    mostrarMensagem('❌ Erro ao atualizar preço. Verifique o Apps Script.', 'erro');
+  }
+}
+
+// ============================================
+// ATUALIZAR ESTOQUE — usa acao: 'atualizar'
+// ============================================
+function mostrarAtualizarEstoque() {
+  document.getElementById('content').innerHTML = `
+    <div class="acao-card">
+      <h3>📦 Atualizar Estoque</h3>
+      <select id="selectProduto">
+        <option value="">Selecione um produto...</option>
+        ${produtos.filter(p => p.nome).map(p =>
+          `<option value="${p.id}">${p.nome} — ${p.estoque || '0'} un.</option>`
+        ).join('')}
+      </select>
+      <input type="number" id="novoValor" placeholder="Nova quantidade em estoque" min="0">
+      <button onclick="atualizarEstoque()">📦 Atualizar Estoque</button>
+    </div>
+    <button class="btn-voltar" onclick="mostrarAdmin()">← Voltar ao Admin</button>
+    <div id="mensagem"></div>
+  `;
+}
+
+async function atualizarEstoque() {
+  const id          = document.getElementById('selectProduto').value;
+  const novoEstoque = document.getElementById('novoValor').value.trim();
+
+  if (!id) {
+    mostrarMensagem('⚠️ Selecione um produto!', 'erro');
+    return;
+  }
+
+  const produto    = produtos.find(p => p.id === id);
+  const atualizado = { ...produto, estoque: novoEstoque || '0' };
+
+  mostrarMensagem('⏳ Atualizando...', 'sucesso');
+
+  // CORRIGIDO: envia acao: 'atualizar'
+  const sucesso = await salvarNoSheet({ acao: 'atualizar', produtos: [atualizado] });
+
+  if (sucesso) {
+    await carregarProdutos();
+    mostrarMensagem(`✅ Estoque de ${produto.nome} atualizado para ${novoEstoque || 0} unidades!`, 'sucesso');
+    setTimeout(() => mostrarAdmin(), 2000);
+  } else {
+    mostrarMensagem('❌ Erro ao atualizar estoque. Verifique o Apps Script.', 'erro');
+  }
+}
+
+// ============================================
+// ATUALIZAR VALIDADE — usa acao: 'atualizar'
+// ============================================
+function mostrarAtualizarValidade() {
+  document.getElementById('content').innerHTML = `
+    <div class="acao-card">
+      <h3>📅 Atualizar Validade</h3>
+      <select id="selectProduto">
+        <option value="">Selecione um produto...</option>
+        ${produtos.filter(p => p.nome).map(p =>
+          `<option value="${p.id}">${p.nome} — ${p.validade || 'sem validade'}</option>`
+        ).join('')}
+      </select>
+      <input type="text" id="novoValor" placeholder="Nova validade (Ex: 31/12/2025)">
+      <button onclick="atualizarValidade()">📅 Atualizar Validade</button>
+    </div>
+    <button class="btn-voltar" onclick="mostrarAdmin()">← Voltar ao Admin</button>
+    <div id="mensagem"></div>
+  `;
+}
+
+async function atualizarValidade() {
+  const id          = document.getElementById('selectProduto').value;
+  const novaValidade = document.getElementById('novoValor').value.trim();
+
+  if (!id) {
+    mostrarMensagem('⚠️ Selecione um produto!', 'erro');
+    return;
+  }
+
+  const produto    = produtos.find(p => p.id === id);
+  const atualizado = { ...produto, validade: novaValidade || '' };
+
+  mostrarMensagem('⏳ Atualizando...', 'sucesso');
+
+  // CORRIGIDO: envia acao: 'atualizar'
+  const sucesso = await salvarNoSheet({ acao: 'atualizar', produtos: [atualizado] });
+
+  if (sucesso) {
+    await carregarProdutos();
+    mostrarMensagem(`✅ Validade de ${produto.nome} atualizada!`, 'sucesso');
+    setTimeout(() => mostrarAdmin(), 2000);
+  } else {
+    mostrarMensagem('❌ Erro ao atualizar validade. Verifique o Apps Script.', 'erro');
+  }
+}
+
+// ============================================
+// UTILITÁRIOS
+// ============================================
+function mostrarMensagem(texto, tipo) {
+  const el = document.getElementById('mensagem');
+  if (el) el.innerHTML = `<div class="mensagem ${tipo}">${texto}</div>`;
+}
+
+function sairAdmin() {
+  usuarioAdmin = false;
+  mostrarInicio();
+}
+
+function sairDoSistema() {
+  if (confirm('Deseja realmente sair?')) window.close();
+}
+
+// ============================================
+// INICIAR
+// ============================================
+inicializar();
+</script>
+</body>
+</html>
