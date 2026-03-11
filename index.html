@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Gestão de Produtos</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
-<!-- Biblioteca bcrypt para hash -->
+<!-- Biblioteca bcrypt para verificar o hash -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
 <style>
 :root {
@@ -453,12 +453,6 @@ body::before {
 </head>
 <body>
 
-<!-- BOTÃO PARA GERAR HASH NO CELULAR -->
-<div style="position:fixed; top:10px; right:10px; z-index:9999;">
-  <button onclick="gerarHashPrompt()" style="background:var(--accent); color:white; border:none; border-radius:30px; padding:12px 20px; font-size:16px; font-weight:bold; box-shadow:0 4px 15px rgba(79,142,247,.5);">
-    🔐 GERAR HASH
-  </button>
-</div>
 
 <div class="app">
   <div class="header" id="header">
@@ -509,29 +503,17 @@ const PLANILHA_ID        = '1LxDTFAteG6bJppvJOp_9SnMBA72-1hEtyy9NCbRrl48';
 const API_URL_LEITURA    = `https://opensheet.elk.sh/${PLANILHA_ID}/1`;
 const SCRIPT_URL_ESCRITA = 'https://script.google.com/macros/s/AKfycbyTJEfr1u5zrKBXN9Jt0CpC66UAFpnHl05iYih5gqXYHUC9tY5lgxCqZ4gYEo2t-gHp/exec';
 
-// 🔐 VARIÁVEIS PARA HASH
+// 🔐 VARIÁVEIS PARA HASH (NÃO USA MAIS ADMIN_PASSWORD)
 let produtos     = [];
 let usuarioAdmin = false;
 let produtoSelecionadoId = null;
-let hashAdmin = ''; // 👈 NOVO: vai armazenar o hash da senha
+let hashAdmin = ''; // Armazena o hash da coluna F
 
-// 🎯 FUNÇÃO PARA GERAR HASH NO CELULAR
-function gerarHashPrompt() {
-  const senha = prompt("🔐 Digite a senha (ex: admin123):");
-  if (senha) {
-    try {
-      const hash = bcrypt.hashSync(senha, 12);
-      alert(`✅ HASH GERADO!\n\n${hash}\n\n📌 COPIE ISSO e cole na coluna F da planilha!`);
-    } catch(e) {
-      alert("❌ Erro ao gerar hash");
-    }
-  }
-}
 
 // ── INIT ──
 async function inicializar() {
   await carregarProdutos();
-  await carregarHashSenha(); // 👈 NOVO: carrega o hash da planilha
+  await carregarHashSenha(); // 👈 NOVO: carrega o hash da coluna F
   mostrarInicio();
 }
 
@@ -545,6 +527,7 @@ async function carregarHashSenha() {
     if (dados && dados.length > 0) {
       // Pega o valor da coluna F (senha)
       hashAdmin = dados[0].senha || dados[0].F || '';
+      console.log('Hash carregado:', hashAdmin ? 'OK' : 'Vazio');
     }
   } catch(e) { 
     console.error('Erro ao carregar hash:', e);
@@ -868,7 +851,7 @@ function toggleSenha() {
   }
 }
 
-// 👇 FUNÇÃO MODIFICADA: compara com HASH
+// 👇 FUNÇÃO MODIFICADA: compara com HASH da coluna F
 function confirmarSenha() {
   const val = document.getElementById('senhaInput').value;
   
@@ -877,15 +860,20 @@ function confirmarSenha() {
     return;
   }
   
-  // bcrypt.compareSync compara a senha digitada com o hash
-  if (bcrypt.compareSync(val, hashAdmin)) {
-    usuarioAdmin = true;
-    fecharModal();
-    mostrarAdmin();
+  // Verifica se bcrypt está disponível
+  if (typeof bcrypt !== 'undefined' && bcrypt.compareSync) {
+    // bcrypt.compareSync compara a senha digitada com o hash
+    if (bcrypt.compareSync(val, hashAdmin)) {
+      usuarioAdmin = true;
+      fecharModal();
+      mostrarAdmin();
+    } else {
+      document.getElementById('senhaErr').style.display = 'block';
+      document.getElementById('senhaInput').value = '';
+      document.getElementById('senhaInput').focus();
+    }
   } else {
-    document.getElementById('senhaErr').style.display = 'block';
-    document.getElementById('senhaInput').value = '';
-    document.getElementById('senhaInput').focus();
+    toast('Erro: Biblioteca bcrypt não carregou!', 'erro');
   }
 }
 
