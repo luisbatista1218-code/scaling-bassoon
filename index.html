@@ -348,14 +348,104 @@ body::before {
 .destaque-row .d-nome { font-size:15px; font-weight:500; }
 .destaque-row .d-preco { font-size:14px; color:var(--accent); font-weight:700; }
 
+/* ===== ALTERAÇÕES SOMENTE PARA PC ===== */
 @media (min-width: 640px) {
   body { align-items: flex-start; justify-content: center; }
   .app { max-width: 100%; min-height: 100vh; }
   .nav { max-width: 100%; left: 0; transform: none; }
-  .content { max-width: 900px; margin: 0 auto; }
-  .menu-grid { grid-template-columns: repeat(4, 1fr); }
-  .form-card { max-width: 520px; }
-  .search-wrap { max-width: 560px; }
+  
+  /* Content esticado até a borda */
+  .content { 
+    max-width: 100%; 
+    margin: 0; 
+    padding: 0 40px; 
+    width: 100%;
+  }
+  
+  /* Grid de cards esticado */
+  .menu-grid { 
+    grid-template-columns: repeat(4, 1fr); 
+    width: 100%;
+  }
+  
+  /* Cards com texto à esquerda */
+  .menu-card {
+    text-align: left;
+    width: 100%;
+  }
+  
+  .menu-card.wide {
+    width: 100%;
+    text-align: left;
+  }
+  
+  /* Formulários esticados */
+  .form-card { 
+    max-width: 100%; 
+    width: 100%;
+    text-align: left;
+  }
+  
+  /* Área de busca esticada */
+  .search-wrap { 
+    max-width: 100%; 
+    width: 100%;
+  }
+  
+  .search-input-row {
+    width: 100%;
+  }
+  
+  .input-icon-wrap {
+    width: 100%;
+  }
+  
+  /* Resultado da consulta esticado */
+  .result-card {
+    width: 100%;
+    text-align: left;
+  }
+  
+  .result-header {
+    text-align: left;
+  }
+  
+  .result-nome, .result-id {
+    text-align: left;
+  }
+  
+  /* Títulos de seção à esquerda */
+  .section-title {
+    text-align: left;
+    width: 100%;
+  }
+  
+  /* Botão Voltar - NOVO */
+  .btn-voltar-consulta {
+    display: inline-block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 14px;
+    margin: 0 0 20px 0;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: left;
+    width: auto;
+  }
+  
+  .btn-voltar-consulta:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  
+  .btn-voltar-consulta:before {
+    content: "← ";
+    margin-right: 4px;
+  }
 }
 </style>
 </head>
@@ -382,7 +472,7 @@ body::before {
   <button class="nav-btn active" id="nav-inicio" onclick="mostrarInicio()">
     <span class="nav-icon">🏠</span><span class="nav-label">Início</span>
   </button>
-  <button class="nav-btn" id="nav-busca" onclick="mostrarConsulta()">
+  <button class="nav-btn" id="nav-busca" onclick="mostrarConsultaComVoltar()">
     <span class="nav-icon">🔍</span><span class="nav-label">Buscar</span>
   </button>
   <button class="nav-btn" id="nav-admin" onclick="abrirAdmin()">
@@ -413,6 +503,7 @@ const ADMIN_PASSWORD     = 'admin123';
 
 let produtos     = [];
 let usuarioAdmin = false;
+let produtoSelecionadoId = null;
 
 // ── INIT ──
 async function inicializar() {
@@ -515,7 +606,7 @@ function mostrarInicio() {
   document.getElementById('content').innerHTML = `
     <p class="section-title">Acesso rápido</p>
     <div class="menu-grid">
-      <div class="menu-card" onclick="mostrarConsulta()">
+      <div class="menu-card" onclick="mostrarConsultaComVoltar()">
         <span class="icon">🔍</span>
         <span class="label">Consultar</span>
         <span class="desc">Preços e estoque</span>
@@ -534,7 +625,7 @@ function mostrarInicio() {
 function irParaProduto(id) {
   const p = produtos.find(x => x.id === id);
   if (!p) return;
-  mostrarConsulta();
+  mostrarConsultaComVoltar();
   setTimeout(() => {
     document.getElementById('nomeBusca').value = p.nome;
     mostrarResultadoConsulta(p);
@@ -542,8 +633,21 @@ function irParaProduto(id) {
 }
 
 // ════════════════════════════════════════════
-// CONSULTA COM AUTOCOMPLETE
+// CONSULTA COM AUTOCOMPLETE E BOTÃO VOLTAR
 // ════════════════════════════════════════════
+function mostrarConsultaComVoltar() {
+  mostrarConsulta();
+  setTimeout(() => {
+    const content = document.getElementById('content');
+    if (content && !document.querySelector('.btn-voltar-consulta')) {
+      const voltarBtn = document.createElement('div');
+      voltarBtn.className = 'btn-voltar-consulta';
+      voltarBtn.onclick = () => mostrarInicio();
+      content.insertBefore(voltarBtn, content.firstChild);
+    }
+  }, 100);
+}
+
 function mostrarConsulta() {
   setNav('busca');
   setHeader('🔍', 'Buscar Produto', 'Digite o nome do produto');
@@ -790,31 +894,24 @@ function sairAdmin() {
 // ════════════════════════════════════════════
 // FUNÇÕES DE AUTOCOMPLETE PARA ADMIN (APENAS ISSO FOI ADICIONADO)
 // ════════════════════════════════════════════
-let _adminAutoIdx = -1;
-let _campoAtual = '';
-let _produtoSelecionadoId = null;
-
 function filtrarAdminAuto(campo) {
   const val = document.getElementById(`busca${campo}`).value.toLowerCase();
   const list = document.getElementById(`autoList${campo}`);
-  _adminAutoIdx = -1;
-  _campoAtual = campo;
-  
   if (!val) { 
     list.classList.remove('open'); 
-    _produtoSelecionadoId = null;
+    produtoSelecionadoId = null;
     return; 
   }
 
   const filtrados = produtos.filter(p => p.nome && p.nome.toLowerCase().includes(val)).slice(0,7);
   if (!filtrados.length) { 
     list.classList.remove('open'); 
-    _produtoSelecionadoId = null;
+    produtoSelecionadoId = null;
     return; 
   }
 
   list.innerHTML = filtrados.map((p,i) => `
-    <div class="autocomplete-item" data-id="${p.id}" data-i="${i}"
+    <div class="autocomplete-item" data-id="${p.id}"
       onclick="selecionarAdminItem('${p.id}', '${campo}')">
       <span class="item-dot"></span>
       <span class="item-name">${highlight(p.nome, val)}</span>
@@ -829,189 +926,11 @@ function selecionarAdminItem(id, campo) {
   
   document.getElementById(`busca${campo}`).value = p.nome;
   document.getElementById(`autoList${campo}`).classList.remove('open');
-  _produtoSelecionadoId = id;
+  produtoSelecionadoId = id;
   
   if (campo === 'preco' || campo === 'estoque' || campo === 'validade') {
     document.getElementById('novoValor').value = p[campo] || '';
   }
-}
-
-function handleAdminKey(e, campo) {
-  const list = document.getElementById(`autoList${campo}`);
-  const items = list ? list.querySelectorAll('.autocomplete-item') : [];
-  
-  if (e.key === 'ArrowDown') {
-    e.preventDefault();
-    _adminAutoIdx = Math.min(_adminAutoIdx+1, items.length-1);
-    items.forEach((el,i) => el.classList.toggle('active', i===_adminAutoIdx));
-  } else if (e.key === 'ArrowUp') {
-    e.preventDefault();
-    _adminAutoIdx = Math.max(_adminAutoIdx-1, 0);
-    items.forEach((el,i) => el.classList.toggle('active', i===_adminAutoIdx));
-  } else if (e.key === 'Enter' && _adminAutoIdx >= 0 && items[_adminAutoIdx]) {
-    selecionarAdminItem(items[_adminAutoIdx].dataset.id, campo);
-  }
-}
-
-// ════════════════════════════════════════════
-// REMOVER COM AUTOCOMPLETE (SUBSTITUÍDO)
-// ════════════════════════════════════════════
-function mostrarRemover() {
-  setHeader('🗑️','Remover Produto','Selecione o produto');
-  document.getElementById('content').innerHTML = `
-    <div class="form-card">
-      <div class="form-title">Remover Produto</div>
-      <div class="field">
-        <label>Buscar Produto</label>
-        <div style="position:relative;">
-          <input type="text" id="buscaRemover" class="search-input" 
-            placeholder="Digite o nome do produto..."
-            oninput="filtrarAdminAuto('Remover')"
-            onkeydown="handleAdminKey(event, 'Remover')"
-            style="padding-left:42px;">
-          <span style="position:absolute; left:14px; top:14px; opacity:.5;">🔍</span>
-          <div class="autocomplete-list" id="autoListRemover"></div>
-        </div>
-      </div>
-      <button class="btn btn-danger" style="margin-top:8px" onclick="confirmarRemover()">🗑️ Remover</button>
-      <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
-    </div>`;
-}
-
-function confirmarRemover() {
-  if (!_produtoSelecionadoId) { 
-    toast('Selecione um produto!','erro'); 
-    return; 
-  }
-  const p = produtos.find(x=>x.id===_produtoSelecionadoId);
-  abrirModal({
-    icon:'⚠️', title:'Confirmar Remoção',
-    desc:`Deseja mesmo remover "${p?.nome}"? Esta ação não pode ser desfeita.`,
-    actions:[
-      { label:'Cancelar', cls:'btn btn-ghost',  fn:'fecharModal()' },
-      { label:'Remover',  cls:'btn btn-danger', fn:`removerProduto('${_produtoSelecionadoId}')` }
-    ]
-  });
-}
-
-async function removerProduto(id) {
-  const p = produtos.find(x=>x.id===id);
-  fecharModal(); toast('Removendo...','sucesso');
-  const ok = await salvarNoSheet({acao:'remover', produtos:[{id}]});
-  if (ok) {
-    produtos = produtos.filter(x=>x.id!==id);
-    toast(`${p?.nome||'Produto'} removido!`,'sucesso');
-    _produtoSelecionadoId = null;
-    setTimeout(mostrarAdmin,1500);
-  } else toast('Erro ao remover.','erro');
-}
-
-// ════════════════════════════════════════════
-// ATUALIZAR PREÇO COM AUTOCOMPLETE (SUBSTITUÍDO)
-// ════════════════════════════════════════════
-function mostrarAtualizarPreco() {
-  setHeader('💰','Atualizar Preço','Defina o novo valor');
-  document.getElementById('content').innerHTML = `
-    <div class="form-card">
-      <div class="form-title">Atualizar Preço</div>
-      <div class="field">
-        <label>Buscar Produto</label>
-        <div style="position:relative;">
-          <input type="text" id="buscapreco" class="search-input" 
-            placeholder="Digite o nome do produto..."
-            oninput="filtrarAdminAuto('preco')"
-            onkeydown="handleAdminKey(event, 'preco')"
-            style="padding-left:42px;">
-          <span style="position:absolute; left:14px; top:14px; opacity:.5;">💰</span>
-          <div class="autocomplete-list" id="autoListpreco"></div>
-        </div>
-      </div>
-      <div class="field"><label>Novo Preço *</label>
-        <input type="number" id="novoValor" placeholder="0.00" step="0.01" min="0"></div>
-      <button class="btn btn-primary" style="margin-top:8px" onclick="atualizarCampo('preco')">💰 Atualizar</button>
-      <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
-    </div>`;
-}
-
-// ════════════════════════════════════════════
-// ATUALIZAR ESTOQUE COM AUTOCOMPLETE (SUBSTITUÍDO)
-// ════════════════════════════════════════════
-function mostrarAtualizarEstoque() {
-  setHeader('📦','Atualizar Estoque','Defina a nova quantidade');
-  document.getElementById('content').innerHTML = `
-    <div class="form-card">
-      <div class="form-title">Atualizar Estoque</div>
-      <div class="field">
-        <label>Buscar Produto</label>
-        <div style="position:relative;">
-          <input type="text" id="buscaestoque" class="search-input" 
-            placeholder="Digite o nome do produto..."
-            oninput="filtrarAdminAuto('estoque')"
-            onkeydown="handleAdminKey(event, 'estoque')"
-            style="padding-left:42px;">
-          <span style="position:absolute; left:14px; top:14px; opacity:.5;">📦</span>
-          <div class="autocomplete-list" id="autoListestoque"></div>
-        </div>
-      </div>
-      <div class="field"><label>Nova Quantidade</label>
-        <input type="number" id="novoValor" placeholder="0" min="0"></div>
-      <button class="btn btn-primary" style="margin-top:8px" onclick="atualizarCampo('estoque')">📦 Atualizar</button>
-      <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
-    </div>`;
-}
-
-// ════════════════════════════════════════════
-// ATUALIZAR VALIDADE COM AUTOCOMPLETE (SUBSTITUÍDO)
-// ════════════════════════════════════════════
-function mostrarAtualizarValidade() {
-  setHeader('📅','Atualizar Validade','Defina a nova data');
-  document.getElementById('content').innerHTML = `
-    <div class="form-card">
-      <div class="form-title">Atualizar Validade</div>
-      <div class="field">
-        <label>Buscar Produto</label>
-        <div style="position:relative;">
-          <input type="text" id="buscavalidade" class="search-input" 
-            placeholder="Digite o nome do produto..."
-            oninput="filtrarAdminAuto('validade')"
-            onkeydown="handleAdminKey(event, 'validade')"
-            style="padding-left:42px;">
-          <span style="position:absolute; left:14px; top:14px; opacity:.5;">📅</span>
-          <div class="autocomplete-list" id="autoListvalidade"></div>
-        </div>
-      </div>
-      <div class="field"><label>Nova Validade</label>
-        <input type="text" id="novoValor" placeholder="Ex: 31/12/2025"></div>
-      <button class="btn btn-primary" style="margin-top:8px" onclick="atualizarCampo('validade')">📅 Atualizar</button>
-      <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
-    </div>`;
-}
-
-// ════════════════════════════════════════════
-// ATUALIZAR CAMPO (compartilhado)
-// ════════════════════════════════════════════
-async function atualizarCampo(campo) {
-  if (!_produtoSelecionadoId) { 
-    toast('Selecione um produto!','erro'); 
-    return; 
-  }
-  
-  const val = (document.getElementById('novoValor').value||'').trim();
-  if (!val && campo !== 'estoque' && campo !== 'validade') { 
-    toast('Preencha o valor!','erro'); 
-    return; 
-  }
-  
-  const p = produtos.find(x=>x.id===_produtoSelecionadoId);
-  toast('Atualizando...','sucesso');
-  
-  const ok = await salvarNoSheet({acao:'atualizar', produtos:[{...p, [campo]:val}]});
-  if (ok) {
-    await carregarProdutos();
-    toast(`${p.nome} atualizado!`,'sucesso');
-    _produtoSelecionadoId = null;
-    setTimeout(mostrarAdmin,1500);
-  } else toast('Erro ao atualizar.','erro');
 }
 
 // ════════════════════════════════════════════
@@ -1049,6 +968,163 @@ async function cadastrarProduto() {
   const ok = await salvarNoSheet({acao:'cadastrar', produtos:[{id:novoId,nome,preco,estoque:estoque||'',validade:validade||''}]});
   if (ok) { await carregarProdutos(); toast(`${nome} cadastrado!`,'sucesso'); setTimeout(mostrarAdmin,1500); }
   else toast('Erro ao cadastrar.','erro');
+}
+
+// ════════════════════════════════════════════
+// REMOVER COM AUTOCOMPLETE (SUBSTITUÍDO)
+// ════════════════════════════════════════════
+function mostrarRemover() {
+  setHeader('🗑️','Remover Produto','Selecione o produto');
+  document.getElementById('content').innerHTML = `
+    <div class="form-card">
+      <div class="form-title">Remover Produto</div>
+      <div class="field">
+        <label>Produto</label>
+        <div style="position:relative;">
+          <input type="text" id="buscaRemover" class="search-input" 
+            placeholder="Digite o nome do produto..."
+            oninput="filtrarAdminAuto('Remover')"
+            style="padding-left:42px;">
+          <span style="position:absolute; left:14px; top:14px; opacity:.5;">🔍</span>
+          <div class="autocomplete-list" id="autoListRemover"></div>
+        </div>
+      </div>
+      <button class="btn btn-danger" style="margin-top:8px" onclick="confirmarRemover()">🗑️ Remover</button>
+      <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
+    </div>`;
+}
+
+function confirmarRemover() {
+  if (!produtoSelecionadoId) { 
+    toast('Selecione um produto!','erro'); 
+    return; 
+  }
+  const p = produtos.find(x=>x.id===produtoSelecionadoId);
+  abrirModal({
+    icon:'⚠️', title:'Confirmar Remoção',
+    desc:`Deseja mesmo remover "${p?.nome}"? Esta ação não pode ser desfeita.`,
+    actions:[
+      { label:'Cancelar', cls:'btn btn-ghost',  fn:'fecharModal()' },
+      { label:'Remover',  cls:'btn btn-danger', fn:`removerProduto('${produtoSelecionadoId}')` }
+    ]
+  });
+}
+
+async function removerProduto(id) {
+  const p = produtos.find(x=>x.id===id);
+  fecharModal(); toast('Removendo...','sucesso');
+  const ok = await salvarNoSheet({acao:'remover', produtos:[{id}]});
+  if (ok) {
+    produtos = produtos.filter(x=>x.id!==id);
+    toast(`${p?.nome||'Produto'} removido!`,'sucesso');
+    produtoSelecionadoId = null;
+    setTimeout(mostrarAdmin,1500);
+  } else toast('Erro ao remover.','erro');
+}
+
+// ════════════════════════════════════════════
+// ATUALIZAR PREÇO COM AUTOCOMPLETE (SUBSTITUÍDO)
+// ════════════════════════════════════════════
+function mostrarAtualizarPreco() {
+  setHeader('💰','Atualizar Preço','Defina o novo valor');
+  document.getElementById('content').innerHTML = `
+    <div class="form-card">
+      <div class="form-title">Atualizar Preço</div>
+      <div class="field">
+        <label>Produto</label>
+        <div style="position:relative;">
+          <input type="text" id="buscapreco" class="search-input" 
+            placeholder="Digite o nome do produto..."
+            oninput="filtrarAdminAuto('preco')"
+            style="padding-left:42px;">
+          <span style="position:absolute; left:14px; top:14px; opacity:.5;">💰</span>
+          <div class="autocomplete-list" id="autoListpreco"></div>
+        </div>
+      </div>
+      <div class="field"><label>Novo Preço *</label>
+        <input type="number" id="novoValor" placeholder="0.00" step="0.01" min="0"></div>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="atualizarCampo('preco')">💰 Atualizar</button>
+      <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+// ATUALIZAR ESTOQUE COM AUTOCOMPLETE (SUBSTITUÍDO)
+// ════════════════════════════════════════════
+function mostrarAtualizarEstoque() {
+  setHeader('📦','Atualizar Estoque','Defina a nova quantidade');
+  document.getElementById('content').innerHTML = `
+    <div class="form-card">
+      <div class="form-title">Atualizar Estoque</div>
+      <div class="field">
+        <label>Produto</label>
+        <div style="position:relative;">
+          <input type="text" id="buscaestoque" class="search-input" 
+            placeholder="Digite o nome do produto..."
+            oninput="filtrarAdminAuto('estoque')"
+            style="padding-left:42px;">
+          <span style="position:absolute; left:14px; top:14px; opacity:.5;">📦</span>
+          <div class="autocomplete-list" id="autoListestoque"></div>
+        </div>
+      </div>
+      <div class="field"><label>Nova Quantidade</label>
+        <input type="number" id="novoValor" placeholder="0" min="0"></div>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="atualizarCampo('estoque')">📦 Atualizar</button>
+      <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+// ATUALIZAR VALIDADE COM AUTOCOMPLETE (SUBSTITUÍDO)
+// ════════════════════════════════════════════
+function mostrarAtualizarValidade() {
+  setHeader('📅','Atualizar Validade','Defina a nova data');
+  document.getElementById('content').innerHTML = `
+    <div class="form-card">
+      <div class="form-title">Atualizar Validade</div>
+      <div class="field">
+        <label>Produto</label>
+        <div style="position:relative;">
+          <input type="text" id="buscavalidade" class="search-input" 
+            placeholder="Digite o nome do produto..."
+            oninput="filtrarAdminAuto('validade')"
+            style="padding-left:42px;">
+          <span style="position:absolute; left:14px; top:14px; opacity:.5;">📅</span>
+          <div class="autocomplete-list" id="autoListvalidade"></div>
+        </div>
+      </div>
+      <div class="field"><label>Nova Validade</label>
+        <input type="text" id="novoValor" placeholder="Ex: 31/12/2025"></div>
+      <button class="btn btn-primary" style="margin-top:8px" onclick="atualizarCampo('validade')">📅 Atualizar</button>
+      <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
+    </div>`;
+}
+
+// ════════════════════════════════════════════
+// ATUALIZAR CAMPO (compartilhado)
+// ════════════════════════════════════════════
+async function atualizarCampo(campo) {
+  if (!produtoSelecionadoId) { 
+    toast('Selecione um produto!','erro'); 
+    return; 
+  }
+  
+  const val = (document.getElementById('novoValor').value||'').trim();
+  if (!val && campo !== 'estoque' && campo !== 'validade') { 
+    toast('Preencha o valor!','erro'); 
+    return; 
+  }
+  
+  const p = produtos.find(x=>x.id===produtoSelecionadoId);
+  toast('Atualizando...','sucesso');
+  
+  const ok = await salvarNoSheet({acao:'atualizar', produtos:[{...p, [campo]:val}]});
+  if (ok) {
+    await carregarProdutos();
+    toast(`${p.nome} atualizado!`,'sucesso');
+    produtoSelecionadoId = null;
+    setTimeout(mostrarAdmin,1500);
+  } else toast('Erro ao atualizar.','erro');
 }
 
 // ── START ──
