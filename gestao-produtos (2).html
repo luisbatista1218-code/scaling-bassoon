@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Gestão de Produtos</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:        #08090d;
+  --bg2:       #0f1118;
+  --surface:   #141720;
+  --card:      #1a1e2e;
+  --card2:     #1f2436;
+  --border:    #252a3d;
+  --border2:   #2e3450;
+  --accent:    #3d7fff;
+  --accent-g:  #6b4fff;
+  --teal:      #00d4aa;
+  --orange:    #ff8c42;
+  --red:       #ff4d6d;
+  --text:      #e2e5f0;
+  --text2:     #9299b8;
+  --text3:     #5a6080;
+  --radius:    14px;
+  --sidebar-w: 240px;
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+
+html, body { height:100%; }
+
+body {
+  font-family: 'Outfit', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  display: flex;
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+/* ═══════════════════════════════════
+   SIDEBAR (desktop)
+═══════════════════════════════════ */
+.sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  z-index: 100;
+}
+
+.sidebar-logo {
+  padding: 28px 24px 24px;
+  border-bottom: 1px solid var(--border);
+}
+.logo-mark {
+  display: flex; align-items: center; gap: 10px;
+}
+.logo-icon {
+  width: 36px; height: 36px; border-radius: 10px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-g));
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 16px rgba(61,127,255,.3);
+}
+.logo-icon svg { width:18px; height:18px; fill:#fff; }
+.logo-text {
+  font-size: 15px; font-weight: 700; letter-spacing: -.3px;
+  line-height: 1.1; color: var(--text);
+}
+.logo-sub { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+.sidebar-nav {
+  flex: 1;
+  padding: 16px 12px;
+  display: flex; flex-direction: column; gap: 2px;
+}
+
+.nav-label-group {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--text3);
+  padding: 10px 12px 6px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 12px; border-radius: 10px;
+  cursor: pointer; transition: all .18s;
+  font-size: 14px; font-weight: 500; color: var(--text2);
+  border: 1px solid transparent;
+  background: none; width: 100%; text-align: left;
+}
+.nav-item svg { width:17px; height:17px; flex-shrink:0; opacity:.7; transition:.18s; }
+.nav-item:hover { background: var(--card); color: var(--text); }
+.nav-item:hover svg { opacity:1; }
+.nav-item.active {
+  background: rgba(61,127,255,.12);
+  color: var(--accent);
+  border-color: rgba(61,127,255,.2);
+}
+.nav-item.active svg { opacity:1; }
+.nav-item.danger { color: var(--red); }
+.nav-item.danger:hover { background: rgba(255,77,109,.1); border-color: rgba(255,77,109,.2); }
+
+.sidebar-footer {
+  padding: 16px 12px;
+  border-top: 1px solid var(--border);
+}
+.admin-badge {
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px; border-radius: 10px;
+  background: rgba(61,127,255,.08); border: 1px solid rgba(61,127,255,.15);
+  font-size: 13px; color: var(--accent); font-weight: 500;
+}
+.admin-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--teal);
+  box-shadow: 0 0 6px var(--teal);
+  flex-shrink: 0;
+}
+
+/* ═══════════════════════════════════
+   MAIN AREA
+═══════════════════════════════════ */
+.main {
+  margin-left: var(--sidebar-w);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.topbar {
+  padding: 24px 36px 0;
+  display: flex; align-items: flex-start; justify-content: space-between;
+}
+.page-title {
+  font-size: 26px; font-weight: 800; letter-spacing: -.5px;
+  line-height: 1.1;
+}
+.page-sub { font-size: 14px; color: var(--text2); margin-top: 4px; }
+
+.content-area {
+  flex: 1;
+  padding: 28px 36px 48px;
+}
+
+/* ═══════════════════════════════════
+   GRID DE CARDS DE AÇÃO
+═══════════════════════════════════ */
+.action-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.action-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px 20px;
+  cursor: pointer;
+  transition: all .2s;
+  position: relative; overflow: hidden;
+}
+.action-card::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--accent), var(--accent-g));
+  transform: scaleX(0); transform-origin: left;
+  transition: transform .25s;
+}
+.action-card:hover { border-color: var(--border2); transform: translateY(-2px); box-shadow: 0 8px 24px rgba(0,0,0,.3); }
+.action-card:hover::after { transform: scaleX(1); }
+.action-card:active { transform: translateY(0) scale(.99); }
+
+.ac-icon {
+  width: 40px; height: 40px; border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 14px;
+}
+.ac-icon svg { width: 20px; height: 20px; }
+.ac-icon.blue  { background: rgba(61,127,255,.15); color: var(--accent); }
+.ac-icon.red   { background: rgba(255,77,109,.12); color: var(--red); }
+.ac-icon.green { background: rgba(0,212,170,.12);  color: var(--teal); }
+.ac-icon.orange{ background: rgba(255,140,66,.12); color: var(--orange); }
+.ac-icon.purple{ background: rgba(107,79,255,.12); color: var(--accent-g); }
+
+.ac-label {
+  font-size: 15px; font-weight: 700; color: var(--text);
+}
+.ac-desc { font-size: 12px; color: var(--text3); margin-top: 3px; }
+
+/* ═══════════════════════════════════
+   BUSCA
+═══════════════════════════════════ */
+.search-section { max-width: 580px; }
+
+.search-box {
+  position: relative; margin-top: 20px;
+}
+.search-icon-wrap {
+  position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+  color: var(--text3); display: flex; align-items: center;
+}
+.search-icon-wrap svg { width: 18px; height: 18px; }
+
+.search-input {
+  width: 100%;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 15px 16px 15px 48px;
+  font-size: 15px; color: var(--text); font-family: 'Outfit', sans-serif;
+  outline: none; transition: .2s;
+}
+.search-input:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(61,127,255,.12);
+}
+.search-input::placeholder { color: var(--text3); }
+
+/* autocomplete */
+.autocomplete-list {
+  position: absolute; top: calc(100% + 8px); left: 0; right: 0;
+  background: var(--card2); border: 1px solid var(--border2);
+  border-radius: 12px; overflow: hidden; z-index: 200;
+  box-shadow: 0 16px 48px rgba(0,0,0,.5);
+  display: none;
+}
+.autocomplete-list.open { display: block; }
+
+.auto-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; cursor: pointer;
+  transition: .12s; border-bottom: 1px solid var(--border);
+  font-size: 14px;
+}
+.auto-item:last-child { border-bottom: none; }
+.auto-item:hover, .auto-item.active { background: rgba(61,127,255,.1); }
+
+.auto-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent); flex-shrink: 0;
+}
+.auto-name { flex: 1; font-weight: 500; }
+.auto-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px; color: var(--accent); font-weight: 600;
+}
+
+/* ═══════════════════════════════════
+   RESULTADO DA BUSCA
+═══════════════════════════════════ */
+.result-wrap {
+  margin-top: 24px;
+  animation: fadeUp .25s ease;
+}
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+.result-header-card {
+  background: linear-gradient(135deg, var(--accent) 0%, var(--accent-g) 100%);
+  border-radius: var(--radius) var(--radius) 0 0;
+  padding: 24px 28px;
+  position: relative; overflow: hidden;
+}
+.result-header-card::before {
+  content:''; position:absolute; right:-30px; top:-30px;
+  width:120px; height:120px; border-radius:50%;
+  background:rgba(255,255,255,.06);
+}
+.rh-name {
+  font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -.3px;
+}
+.rh-id {
+  font-size: 12px; color: rgba(255,255,255,.5); margin-top: 4px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.result-stats {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  background: var(--card); border: 1px solid var(--border);
+  border-top: none; border-radius: 0 0 var(--radius) var(--radius);
+  overflow: hidden;
+}
+.stat-cell {
+  padding: 18px 20px;
+  border-right: 1px solid var(--border);
+}
+.stat-cell:last-child { border-right: none; }
+.stat-label { font-size: 11px; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; font-weight: 600; }
+.stat-value {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 20px; font-weight: 700; margin-top: 6px;
+}
+.stat-value.price  { color: var(--text); }
+.stat-value.stock  { color: var(--teal); }
+.stat-value.expiry { color: var(--orange); }
+.stat-value.empty  { color: var(--text3); font-size:14px; font-family:'Outfit',sans-serif; }
+
+/* ═══════════════════════════════════
+   FORMULÁRIOS
+═══════════════════════════════════ */
+.form-wrap { max-width: 520px; margin-top: 24px; }
+
+.form-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 28px;
+}
+
+.field { margin-bottom: 16px; }
+.field label {
+  display: block; font-size: 12px; font-weight: 600;
+  letter-spacing: .06em; text-transform: uppercase;
+  color: var(--text2); margin-bottom: 7px;
+}
+.field input, .field select {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 13px 14px;
+  font-size: 15px; color: var(--text); font-family: 'Outfit', sans-serif;
+  outline: none; transition: .2s; appearance: none;
+}
+.field input:focus, .field select:focus {
+  border-color: var(--accent); box-shadow: 0 0 0 3px rgba(61,127,255,.12);
+}
+.field input::placeholder { color: var(--text3); }
+.field select option { background: var(--card); }
+
+.field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.btn-row { display: flex; gap: 10px; margin-top: 8px; }
+
+.btn {
+  padding: 13px 24px; border-radius: 10px; border: none;
+  font-size: 14px; font-weight: 700; font-family: 'Outfit', sans-serif;
+  cursor: pointer; transition: all .2s;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.btn-primary {
+  background: linear-gradient(135deg, var(--accent), var(--accent-g));
+  color: #fff; box-shadow: 0 4px 16px rgba(61,127,255,.25);
+}
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 22px rgba(61,127,255,.35); }
+.btn-ghost {
+  background: var(--surface); color: var(--text2);
+  border: 1px solid var(--border);
+}
+.btn-ghost:hover { border-color: var(--border2); color: var(--text); }
+.btn-danger {
+  background: rgba(255,77,109,.1); color: var(--red);
+  border: 1px solid rgba(255,77,109,.2);
+}
+.btn-danger:hover { background: rgba(255,77,109,.2); }
+.btn svg { width:16px; height:16px; }
+
+/* ═══════════════════════════════════
+   RECENT LIST (home)
+═══════════════════════════════════ */
+.recent-table {
+  margin-top: 20px;
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden;
+}
+.rt-head {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 12px 20px;
+  background: var(--surface); border-bottom: 1px solid var(--border);
+  font-size: 11px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--text3);
+}
+.rt-row {
+  display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+  padding: 14px 20px; border-bottom: 1px solid var(--border);
+  align-items: center; cursor: pointer; transition: .15s;
+  font-size: 14px;
+}
+.rt-row:last-child { border-bottom: none; }
+.rt-row:hover { background: rgba(61,127,255,.05); }
+.rt-name { font-weight: 600; }
+.rt-price {
+  font-family: 'JetBrains Mono', monospace;
+  font-weight: 600; color: var(--accent);
+}
+.rt-stock { color: var(--teal); }
+.rt-exp { color: var(--orange); font-size: 13px; }
+.rt-empty { color: var(--text3); font-size: 13px; }
+
+/* ═══════════════════════════════════
+   STATS CARDS (home topo)
+═══════════════════════════════════ */
+.stat-cards {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 14px; margin-top: 24px;
+}
+.stat-kpi {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px;
+}
+.kpi-label { font-size: 12px; color: var(--text3); font-weight: 600; text-transform: uppercase; letter-spacing: .07em; }
+.kpi-value {
+  font-size: 30px; font-weight: 800; margin-top: 8px;
+  font-family: 'JetBrains Mono', monospace; letter-spacing: -1px;
+}
+.kpi-value.blue   { color: var(--accent); }
+.kpi-value.green  { color: var(--teal); }
+.kpi-value.orange { color: var(--orange); }
+
+/* ═══════════════════════════════════
+   MODAL
+═══════════════════════════════════ */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,.75); backdrop-filter: blur(10px);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 500; padding: 20px;
+  opacity: 0; pointer-events: none; transition: .2s;
+}
+.overlay.open { opacity: 1; pointer-events: all; }
+
+.modal {
+  background: var(--card); border: 1px solid var(--border2);
+  border-radius: 18px; padding: 32px 28px;
+  width: 100%; max-width: 380px;
+  transform: scale(.93) translateY(12px);
+  transition: .28s cubic-bezier(.34,1.56,.64,1);
+  box-shadow: 0 32px 80px rgba(0,0,0,.6);
+}
+.overlay.open .modal { transform: scale(1) translateY(0); }
+
+.modal-icon { font-size: 42px; margin-bottom: 14px; }
+.modal-title {
+  font-size: 20px; font-weight: 800; letter-spacing: -.3px; margin-bottom: 6px;
+}
+.modal-desc { font-size: 14px; color: var(--text2); line-height: 1.55; margin-bottom: 22px; }
+
+/* campo senha com show/hide */
+.pass-wrap { position: relative; margin-bottom: 10px; }
+.pass-input {
+  width: 100%; background: var(--surface); border: 1px solid var(--border);
+  border-radius: 10px; padding: 13px 48px 13px 14px;
+  font-size: 15px; color: var(--text); font-family: 'Outfit', sans-serif;
+  outline: none; transition: .2s; letter-spacing: .05em;
+}
+.pass-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(61,127,255,.12); }
+.pass-toggle {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer;
+  color: var(--text3); display: flex; align-items: center;
+  padding: 4px; transition: color .15s;
+}
+.pass-toggle:hover { color: var(--text); }
+.pass-toggle svg { width: 18px; height: 18px; }
+
+.modal-err { font-size: 13px; color: var(--red); margin-bottom: 12px; display: none; }
+.modal-actions { display: flex; gap: 10px; margin-top: 4px; }
+.modal-actions .btn { flex: 1; justify-content: center; }
+
+/* ═══════════════════════════════════
+   TOAST
+═══════════════════════════════════ */
+#toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--card2); border: 1px solid var(--border2);
+  border-radius: 10px; padding: 12px 20px;
+  font-size: 14px; font-weight: 500;
+  box-shadow: 0 8px 32px rgba(0,0,0,.5);
+  opacity: 0; pointer-events: none;
+  transform: translateY(8px);
+  transition: opacity .25s, transform .25s;
+  z-index: 999; display: flex; align-items: center; gap: 10px;
+  min-width: 220px;
+}
+#toast.show { opacity: 1; transform: translateY(0); }
+#toast .t-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+#toast.sucesso .t-dot { background: var(--teal); box-shadow: 0 0 6px var(--teal); }
+#toast.erro    .t-dot { background: var(--red);  box-shadow: 0 0 6px var(--red); }
+
+/* ═══════════════════════════════════
+   MOBILE
+═══════════════════════════════════ */
+.mobile-header {
+  display: none;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  padding: 16px 20px; align-items: center; gap: 12px;
+  position: sticky; top:0; z-index:90;
+}
+.mobile-logo-icon {
+  width:32px; height:32px; border-radius:8px;
+  background: linear-gradient(135deg, var(--accent), var(--accent-g));
+  display:flex; align-items:center; justify-content:center;
+}
+.mobile-logo-icon svg { width:16px; height:16px; fill:#fff; }
+.mobile-title { font-size:15px; font-weight:700; }
+
+.bottom-nav {
+  display: none;
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: rgba(15,17,24,.95); backdrop-filter: blur(20px);
+  border-top: 1px solid var(--border);
+  padding: 8px 16px 20px; gap: 4px; z-index: 200;
+}
+.bnav-btn {
+  flex: 1; background: none; border: none;
+  padding: 9px 8px; border-radius: 10px;
+  display: flex; flex-direction: column; align-items: center; gap: 4px;
+  cursor: pointer; transition: .18s; color: var(--text3); font-family: 'Outfit',sans-serif;
+}
+.bnav-btn svg { width:20px; height:20px; }
+.bnav-btn span { font-size: 10px; font-weight: 600; }
+.bnav-btn:hover { color: var(--text); }
+.bnav-btn.active { color: var(--accent); background: rgba(61,127,255,.1); }
+
+/* empty state */
+.empty-state {
+  text-align: center; padding: 60px 20px; color: var(--text3);
+}
+.empty-state svg { width:48px; height:48px; opacity:.3; margin-bottom:16px; }
+.empty-state p { font-size:15px; }
+
+@media (max-width: 768px) {
+  .sidebar { display: none; }
+  .main { margin-left: 0; }
+  .topbar { padding: 20px 20px 0; }
+  .topbar .page-title { font-size: 20px; }
+  .content-area { padding: 20px 20px 100px; }
+  .mobile-header { display: flex; }
+  .bottom-nav { display: flex; }
+  .stat-cards { grid-template-columns: repeat(3,1fr); gap:10px; }
+  .kpi-value { font-size: 22px; }
+  .action-grid { grid-template-columns: 1fr 1fr; }
+  .rt-head, .rt-row { grid-template-columns: 2fr 1fr; }
+  .rt-head > *:nth-child(n+3),
+  .rt-row  > *:nth-child(n+3) { display: none; }
+  .result-stats { grid-template-columns: 1fr; }
+  .stat-cell { border-right: none; border-bottom: 1px solid var(--border); }
+  .stat-cell:last-child { border-bottom: none; }
+  .field-row { grid-template-columns: 1fr; }
+  #toast { bottom: 90px; right: 16px; left: 16px; min-width: unset; }
+}
+</style>
+</head>
+<body>
+
+<!-- MOBILE HEADER -->
+<div class="mobile-header">
+  <div class="mobile-logo-icon">
+    <svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </div>
+  <span class="mobile-title" id="mobileTitle">Gestão de Produtos</span>
+</div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-mark">
+      <div class="logo-icon">
+        <svg viewBox="0 0 24 24"><path d="M20 7H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2z"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div>
+        <div class="logo-text">Produtos</div>
+        <div class="logo-sub">Gestão de estoque</div>
+      </div>
+    </div>
+  </div>
+
+  <nav class="sidebar-nav">
+    <div class="nav-label-group">Menu</div>
+    <button class="nav-item active" id="sn-inicio" onclick="mostrarInicio()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+      Início
+    </button>
+    <button class="nav-item" id="sn-busca" onclick="mostrarConsulta()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Consultar
+    </button>
+
+    <div class="nav-label-group" style="margin-top:8px">Admin</div>
+    <button class="nav-item" id="sn-cadastro" onclick="goAdmin('cadastro')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+      Cadastrar
+    </button>
+    <button class="nav-item" id="sn-preco" onclick="goAdmin('preco')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+      Preço
+    </button>
+    <button class="nav-item" id="sn-estoque" onclick="goAdmin('estoque')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      Estoque
+    </button>
+    <button class="nav-item" id="sn-validade" onclick="goAdmin('validade')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+      Validade
+    </button>
+    <button class="nav-item" id="sn-remover" onclick="goAdmin('remover')">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+      Remover
+    </button>
+
+    <div style="flex:1"></div>
+    <button class="nav-item danger" onclick="confirmarSairAdmin()" id="sn-sair" style="display:none">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      Sair do Admin
+    </button>
+  </nav>
+
+  <div class="sidebar-footer">
+    <div class="admin-badge" id="adminBadge" style="display:none">
+      <span class="admin-dot"></span> Sessão Admin Ativa
+    </div>
+  </div>
+</aside>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div>
+      <div class="page-title" id="pageTitle">Início</div>
+      <div class="page-sub"   id="pageSub">Visão geral do sistema</div>
+    </div>
+  </div>
+  <div class="content-area" id="contentArea">
+    <div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      <p>Carregando dados...</p>
+    </div>
+  </div>
+</main>
+
+<!-- MOBILE NAV -->
+<nav class="bottom-nav">
+  <button class="bnav-btn active" id="bn-inicio" onclick="mostrarInicio()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>
+    <span>Início</span>
+  </button>
+  <button class="bnav-btn" id="bn-busca" onclick="mostrarConsulta()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <span>Buscar</span>
+  </button>
+  <button class="bnav-btn" id="bn-admin" onclick="abrirAdmin()">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+    <span>Admin</span>
+  </button>
+</nav>
+
+<!-- MODAL -->
+<div class="overlay" id="overlay">
+  <div class="modal" id="modal">
+    <div class="modal-icon" id="mIcon"></div>
+    <div class="modal-title" id="mTitle"></div>
+    <div class="modal-desc"  id="mDesc"></div>
+    <div id="mBody"></div>
+    <div class="modal-err" id="mErr"></div>
+    <div class="modal-actions" id="mActions"></div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"><span class="t-dot"></span><span id="toastMsg"></span></div>
+
+<script>
+// ── CONFIG ──
+const PLANILHA_ID        = '1LxDTFAteG6bJppvJOp_9SnMBA72-1hEtyy9NCbRrl48';
+const API_URL_LEITURA    = `https://opensheet.elk.sh/${PLANILHA_ID}/1`;
+const SCRIPT_URL_ESCRITA = 'https://script.google.com/macros/s/AKfycbyTJEfr1u5zrKBXN9Jt0CpC66UAFpnHl05iYih5gqXYHUC9tY5lgxCqZ4gYEo2t-gHp/exec';
+const ADMIN_PASSWORD     = 'admin123';
+
+let produtos     = [];
+let usuarioAdmin = false;
+
+// ── INIT ──
+async function inicializar() {
+  await carregarProdutos();
+  mostrarInicio();
+}
+
+// ── NAV HELPERS ──
+function setNav(id) {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.bnav-btn').forEach(b => b.classList.remove('active'));
+  const sn = document.getElementById('sn-' + id);
+  const bn = document.getElementById('bn-' + id);
+  if (sn) sn.classList.add('active');
+  if (bn) bn.classList.add('active');
+}
+function setPage(title, sub, mobileTitle) {
+  document.getElementById('pageTitle').textContent   = title;
+  document.getElementById('pageSub').textContent     = sub;
+  document.getElementById('mobileTitle').textContent = mobileTitle || title;
+}
+
+// ── CARREGAR ──
+async function carregarProdutos() {
+  try {
+    const r = await fetch(API_URL_LEITURA);
+    if (!r.ok) throw new Error();
+    const d = await r.json();
+    if (!d || !d.length) { produtos = []; return; }
+    produtos = d.map(i => ({
+      id:       String(i.id       || i.ID       || '').trim(),
+      nome:     String(i.nome     || i.Nome     || i.produto || i.Produto || '').trim(),
+      preco:    String(i['preco ']|| i.preco    || i.Preco  || i['preço'] || '0').trim(),
+      estoque:  String(i.estoque  || i.Estoque  || '').trim(),
+      validade: String(i.validade || i.Validade || '').trim()
+    })).filter(p => p.nome);
+  } catch(e) { produtos = []; }
+}
+
+// ── SALVAR ──
+async function salvarNoSheet(dados) {
+  try {
+    const r = await fetch(SCRIPT_URL_ESCRITA, {
+      method:'POST', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(dados)
+    });
+    const res = await r.json();
+    return res.success === true;
+  } catch(e) { return false; }
+}
+
+// ── MODAL ──
+function abrirModal({ icon='', title='', desc='', body='', actions=[], err='' }) {
+  document.getElementById('mIcon').textContent   = icon;
+  document.getElementById('mTitle').textContent  = title;
+  document.getElementById('mDesc').textContent   = desc;
+  document.getElementById('mBody').innerHTML     = body;
+  document.getElementById('mErr').style.display  = 'none';
+  document.getElementById('mErr').textContent    = err;
+  document.getElementById('mActions').innerHTML  = actions.map(a =>
+    `<button class="btn ${a.cls||'btn-ghost'}" onclick="${a.fn}">${a.label}</button>`
+  ).join('');
+  document.getElementById('overlay').classList.add('open');
+  setTimeout(() => { const inp = document.querySelector('#mBody input'); if(inp) inp.focus(); }, 200);
+}
+function fecharModal() { document.getElementById('overlay').classList.remove('open'); }
+document.getElementById('overlay').addEventListener('click', e => { if(e.target.id==='overlay') fecharModal(); });
+
+// ── TOAST ──
+let _tt;
+function toast(msg, tipo='sucesso') {
+  const el = document.getElementById('toast');
+  clearTimeout(_tt);
+  document.getElementById('toastMsg').textContent = msg;
+  el.className = 'show ' + tipo;
+  _tt = setTimeout(() => el.classList.remove('show'), 3000);
+}
+
+// ════════════════════════════════════════
+// INÍCIO
+// ════════════════════════════════════════
+function mostrarInicio() {
+  setNav('inicio'); setPage('Início', 'Visão geral do estoque');
+
+  const total      = produtos.length;
+  const comEstoque = produtos.filter(p => p.estoque && p.estoque !== '0').length;
+  const comValidade= produtos.filter(p => p.validade).length;
+
+  let tabela = '';
+  if (produtos.length === 0) {
+    tabela = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+      <p>Nenhum produto cadastrado ainda</p></div>`;
+  } else {
+    tabela = `
+      <div class="recent-table">
+        <div class="rt-head">
+          <span>Produto</span><span>Preço</span><span>Estoque</span><span>Validade</span>
+        </div>
+        ${produtos.map(p => `
+          <div class="rt-row" onclick="irParaProduto('${p.id}')">
+            <span class="rt-name">${p.nome}</span>
+            <span class="rt-price">R$ ${parseFloat(p.preco||0).toFixed(2)}</span>
+            <span class="${p.estoque ? 'rt-stock' : 'rt-empty'}">${p.estoque || '—'}</span>
+            <span class="${p.validade ? 'rt-exp' : 'rt-empty'}">${p.validade || '—'}</span>
+          </div>`).join('')}
+      </div>`;
+  }
+
+  document.getElementById('contentArea').innerHTML = `
+    <div class="stat-cards">
+      <div class="stat-kpi">
+        <div class="kpi-label">Total</div>
+        <div class="kpi-value blue">${total}</div>
+      </div>
+      <div class="stat-kpi">
+        <div class="kpi-label">Com estoque</div>
+        <div class="kpi-value green">${comEstoque}</div>
+      </div>
+      <div class="stat-kpi">
+        <div class="kpi-label">Com validade</div>
+        <div class="kpi-value orange">${comValidade}</div>
+      </div>
+    </div>
+    <div style="margin-top:28px">
+      <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--text3);margin-bottom:2px">
+        Todos os produtos
+      </div>
+      ${tabela}
+    </div>`;
+}
+
+function irParaProduto(id) {
+  const p = produtos.find(x => x.id === id);
+  if (!p) return;
+  mostrarConsulta();
+  setTimeout(() => {
+    const inp = document.getElementById('searchInput');
+    if (inp) { inp.value = p.nome; mostrarResultadoConsulta(p); }
+  }, 30);
+}
+
+// ════════════════════════════════════════
+// CONSULTA + AUTOCOMPLETE
+// ════════════════════════════════════════
+function mostrarConsulta() {
+  setNav('busca'); setPage('Consultar Produto', 'Pesquise pelo nome');
+  document.getElementById('contentArea').innerHTML = `
+    <div class="search-section">
+      <div class="search-box">
+        <div class="search-icon-wrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        </div>
+        <input class="search-input" id="searchInput"
+          placeholder="Digite o nome do produto..."
+          autocomplete="off"
+          oninput="filtrarAuto()"
+          onkeydown="handleKey(event)">
+        <div class="autocomplete-list" id="autoList"></div>
+      </div>
+      <div id="resultArea"></div>
+    </div>`;
+  document.getElementById('searchInput').focus();
+}
+
+let _idx = -1;
+
+function filtrarAuto() {
+  const val  = (document.getElementById('searchInput').value||'').trim().toLowerCase();
+  const list = document.getElementById('autoList');
+  _idx = -1;
+  if (!val) { list.classList.remove('open'); return; }
+
+  const hits = produtos.filter(p => p.nome && p.nome.toLowerCase().includes(val)).slice(0,8);
+  if (!hits.length) { list.classList.remove('open'); return; }
+
+  list.innerHTML = hits.map((p,i) => `
+    <div class="auto-item" data-id="${p.id}" data-i="${i}" onmousedown="selectItem('${p.id}')">
+      <span class="auto-dot"></span>
+      <span class="auto-name">${hl(p.nome, val)}</span>
+      <span class="auto-price">R$ ${parseFloat(p.preco||0).toFixed(2)}</span>
+    </div>`).join('');
+  list.classList.add('open');
+}
+
+function hl(nome, q) {
+  const i = nome.toLowerCase().indexOf(q);
+  if (i < 0) return nome;
+  return nome.slice(0,i)
+    + `<strong style="color:var(--accent)">${nome.slice(i,i+q.length)}</strong>`
+    + nome.slice(i+q.length);
+}
+
+function handleKey(e) {
+  const list  = document.getElementById('autoList');
+  const items = list ? list.querySelectorAll('.auto-item') : [];
+  if (!list || !list.classList.contains('open')) {
+    if (e.key === 'Enter') buscaTexto(); return;
+  }
+  if (e.key === 'ArrowDown') {
+    e.preventDefault(); _idx = Math.min(_idx+1, items.length-1);
+    items.forEach((el,i) => el.classList.toggle('active', i===_idx));
+  } else if (e.key === 'ArrowUp') {
+    e.preventDefault(); _idx = Math.max(_idx-1, 0);
+    items.forEach((el,i) => el.classList.toggle('active', i===_idx));
+  } else if (e.key === 'Enter') {
+    if (_idx >= 0 && items[_idx]) selectItem(items[_idx].dataset.id);
+    else buscaTexto();
+  } else if (e.key === 'Escape') {
+    list.classList.remove('open');
+  }
+}
+
+function selectItem(id) {
+  const p = produtos.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('searchInput').value = p.nome;
+  document.getElementById('autoList').classList.remove('open');
+  mostrarResultadoConsulta(p);
+}
+
+function buscaTexto() {
+  const val = (document.getElementById('searchInput').value||'').trim().toLowerCase();
+  if (!val) return;
+  const p = produtos.find(x => x.nome && x.nome.toLowerCase().includes(val));
+  if (p) selectItem(p.id);
+  else document.getElementById('resultArea').innerHTML =
+    `<div class="empty-state" style="padding:32px 0">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      <p>Produto não encontrado</p></div>`;
+}
+
+document.addEventListener('click', e => {
+  const l = document.getElementById('autoList');
+  if (l && !l.contains(e.target) && e.target.id !== 'searchInput') l.classList.remove('open');
+});
+
+function mostrarResultadoConsulta(p) {
+  const preco = parseFloat(p.preco||0);
+  document.getElementById('resultArea').innerHTML = `
+    <div class="result-wrap">
+      <div class="result-header-card">
+        <div class="rh-name">${p.nome}</div>
+        <div class="rh-id">ID #${p.id}</div>
+      </div>
+      <div class="result-stats">
+        <div class="stat-cell">
+          <div class="stat-label">Preço</div>
+          <div class="stat-value price">R$ ${preco.toFixed(2)}</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Estoque</div>
+          <div class="stat-value ${p.estoque ? 'stock' : 'empty'}">${p.estoque ? p.estoque + ' un.' : '—'}</div>
+        </div>
+        <div class="stat-cell">
+          <div class="stat-label">Validade</div>
+          <div class="stat-value ${p.validade ? 'expiry' : 'empty'}">${p.validade || '—'}</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+// ════════════════════════════════════════
+// ADMIN — verificação de senha
+// ════════════════════════════════════════
+function abrirAdmin() {
+  if (usuarioAdmin) { mostrarInicio(); return; }
+  abrirModal({
+    icon: '🔐',
+    title: 'Área Restrita',
+    desc: 'Digite a senha de administrador para continuar.',
+    body: `
+      <div class="pass-wrap">
+        <input class="pass-input" id="senhaInput" type="password"
+          placeholder="Senha"
+          onkeydown="if(event.key==='Enter') confirmarSenha()">
+        <button class="pass-toggle" type="button" onclick="toggleSenha()" id="passToggleBtn" title="Mostrar/ocultar senha">
+          <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>`,
+    actions: [
+      { label:'Cancelar', cls:'btn btn-ghost',  fn:'fecharModal()' },
+      { label:'Entrar',   cls:'btn btn-primary', fn:'confirmarSenha()' }
+    ]
+  });
+}
+
+function toggleSenha() {
+  const inp = document.getElementById('senhaInput');
+  const ico = document.getElementById('eyeIcon');
+  if (!inp) return;
+  if (inp.type === 'password') {
+    inp.type = 'text';
+    ico.innerHTML = `
+      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+      <line x1="1" y1="1" x2="23" y2="23"/>`;
+  } else {
+    inp.type = 'password';
+    ico.innerHTML = `
+      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+      <circle cx="12" cy="12" r="3"/>`;
+  }
+}
+
+function confirmarSenha() {
+  const val = (document.getElementById('senhaInput').value || '');
+  if (val === ADMIN_PASSWORD) {
+    usuarioAdmin = true;
+    fecharModal();
+    document.getElementById('adminBadge').style.display = 'flex';
+    document.getElementById('sn-sair').style.display = 'flex';
+    toast('Bem-vindo, Admin!', 'sucesso');
+    mostrarInicio();
+  } else {
+    const err = document.getElementById('mErr');
+    err.textContent = 'Senha incorreta. Tente novamente.';
+    err.style.display = 'block';
+    document.getElementById('senhaInput').value = '';
+    document.getElementById('senhaInput').focus();
+  }
+}
+
+function goAdmin(tela) {
+  if (!usuarioAdmin) {
+    abrirModal({
+      icon:'🔐', title:'Área Restrita',
+      desc:'Esta área requer autenticação de administrador.',
+      body:`
+        <div class="pass-wrap">
+          <input class="pass-input" id="senhaInput" type="password"
+            placeholder="Senha"
+            onkeydown="if(event.key==='Enter') confirmarSenhaGo('${tela}')">
+          <button class="pass-toggle" type="button" onclick="toggleSenha()" title="Mostrar/ocultar senha">
+            <svg id="eyeIcon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>`,
+      actions:[
+        { label:'Cancelar', cls:'btn btn-ghost',  fn:'fecharModal()' },
+        { label:'Entrar',   cls:'btn btn-primary', fn:`confirmarSenhaGo('${tela}')` }
+      ]
+    });
+    return;
+  }
+  abrirTela(tela);
+}
+
+function confirmarSenhaGo(tela) {
+  const val = (document.getElementById('senhaInput').value || '');
+  if (val === ADMIN_PASSWORD) {
+    usuarioAdmin = true;
+    fecharModal();
+    document.getElementById('adminBadge').style.display = 'flex';
+    document.getElementById('sn-sair').style.display = 'flex';
+    abrirTela(tela);
+  } else {
+    const err = document.getElementById('mErr');
+    err.textContent = 'Senha incorreta.';
+    err.style.display = 'block';
+    document.getElementById('senhaInput').value = '';
+    document.getElementById('senhaInput').focus();
+  }
+}
+
+function abrirTela(tela) {
+  if (tela === 'cadastro') mostrarCadastro();
+  else if (tela === 'preco') mostrarAtualizarPreco();
+  else if (tela === 'estoque') mostrarAtualizarEstoque();
+  else if (tela === 'validade') mostrarAtualizarValidade();
+  else if (tela === 'remover') mostrarRemover();
+}
+
+function confirmarSairAdmin() {
+  abrirModal({
+    icon:'🚪', title:'Sair do Admin',
+    desc:'Deseja encerrar a sessão administrativa?',
+    actions:[
+      { label:'Cancelar', cls:'btn btn-ghost',  fn:'fecharModal()' },
+      { label:'Sair',     cls:'btn btn-danger', fn:'sairAdmin()' }
+    ]
+  });
+}
+function sairAdmin() {
+  usuarioAdmin = false; fecharModal();
+  document.getElementById('adminBadge').style.display = 'none';
+  document.getElementById('sn-sair').style.display = 'none';
+  mostrarInicio();
+  toast('Sessão encerrada', 'sucesso');
+}
+
+// ── helpers ──
+function selectOpcoes() {
+  return `<option value="">Selecione um produto...</option>` +
+    produtos.filter(p=>p.nome).map(p =>
+      `<option value="${p.id}">${p.nome}</option>`).join('');
+}
+
+// ════════════════════════════════════════
+// CADASTRAR
+// ════════════════════════════════════════
+function mostrarCadastro() {
+  setNav('cadastro'); setPage('Cadastrar Produto', 'Adicione um novo produto');
+  document.getElementById('contentArea').innerHTML = `
+    <div class="form-wrap">
+      <div class="form-card">
+        <div class="field"><label>Nome *</label>
+          <input type="text" id="f_nome" placeholder="Ex: Café Pilão 500g"></div>
+        <div class="field-row">
+          <div class="field"><label>Preço *</label>
+            <input type="number" id="f_preco" placeholder="0.00" step="0.01" min="0"></div>
+          <div class="field"><label>Estoque</label>
+            <input type="number" id="f_estoque" placeholder="Qtd." min="0"></div>
+        </div>
+        <div class="field"><label>Validade</label>
+          <input type="text" id="f_validade" placeholder="Ex: 31/12/2025"></div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="mostrarInicio()">Cancelar</button>
+          <button class="btn btn-primary" onclick="cadastrarProduto()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            Cadastrar
+          </button>
+        </div>
+      </div>
+    </div>`;
+}
+
+async function cadastrarProduto() {
+  const nome     = (document.getElementById('f_nome').value||'').trim();
+  const preco    = (document.getElementById('f_preco').value||'').trim();
+  const estoque  = (document.getElementById('f_estoque').value||'').trim();
+  const validade = (document.getElementById('f_validade').value||'').trim();
+  if (!nome||!preco) { toast('Nome e preço são obrigatórios!','erro'); return; }
+  const novoId = produtos.length > 0
+    ? (Math.max(...produtos.map(p=>Number(p.id)||0))+1).toString() : '1';
+  toast('Cadastrando...','sucesso');
+  const ok = await salvarNoSheet({acao:'cadastrar', produtos:[{id:novoId,nome,preco,estoque:estoque||'',validade:validade||''}]});
+  if (ok) { await carregarProdutos(); toast(`${nome} cadastrado!`,'sucesso'); setTimeout(mostrarInicio,1200); }
+  else toast('Erro ao cadastrar.','erro');
+}
+
+// ════════════════════════════════════════
+// REMOVER
+// ════════════════════════════════════════
+function mostrarRemover() {
+  setNav('remover'); setPage('Remover Produto', 'Exclua um produto do sistema');
+  document.getElementById('contentArea').innerHTML = `
+    <div class="form-wrap">
+      <div class="form-card">
+        <div class="field"><label>Produto</label>
+          <select id="f_sel">${selectOpcoes()}</select></div>
+        <div class="btn-row">
+          <button class="btn btn-ghost" onclick="mostrarInicio()">Cancelar</button>
+          <button class="btn btn-danger" onclick="confirmarRemover()">Remover</button>
+        </div>
+      </div>
+    </div>`;
+}
+
+function confirmarRemover() {
+  const id = document.getElementById('f_sel').value;
+  if (!id) { toast('Selecione um produto!','erro'); return; }
+  const p = produtos.find(x=>x.id===id);
+  abrirModal({
+    icon:'⚠️', title:'Confirmar Remoção',
+    desc:`Deseja mesmo remover "${p?.nome}"? Esta ação não pode ser desfeita.`,
+    actions:[
+      { label:'Cancelar', cls:'btn btn-ghost',  fn:'fecharModal()' },
+      { label:'Remover',  cls:'btn btn-danger', fn:`execRemover('${id}')` }
+    ]
+  });
+}
+async function execRemover(id) {
+  const p = produtos.find(x=>x.id===id);
+  fecharModal(); toast('Removendo...','sucesso');
+  const ok = await salvarNoSheet({acao:'remover', produtos:[{id}]});
+  if (ok) {
+    produtos = produtos.filter(x=>x.id!==id);
+    toast(`${p?.nome||'Produto'} removido!`,'sucesso');
+    setTimeout(mostrarInicio,1200);
+  } else toast('Erro ao remover.','erro');
+}
+
+// ════════════════════════════════════════
+// ATUALIZAR (preço / estoque / validade)
+// ════════════════════════════════════════
+function mostrarAtualizarPreco() {
+  setNav('preco'); setPage('Atualizar Preço', 'Altere o valor de um produto');
+  document.getElementById('contentArea').innerHTML = `
+    <div class="form-wrap"><div class="form-card">
+      <div class="field"><label>Produto</label>
+        <select id="f_sel" onchange="preencherCampo('preco')">${selectOpcoes()}</select></div>
+      <div class="field"><label>Novo Preço *</label>
+        <input type="number" id="f_val" placeholder="0.00" step="0.01" min="0"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="mostrarInicio()">Cancelar</button>
+        <button class="btn btn-primary" onclick="atualizarCampo('preco')">Salvar</button>
+      </div>
+    </div></div>`;
+}
+
+function mostrarAtualizarEstoque() {
+  setNav('estoque'); setPage('Atualizar Estoque', 'Altere a quantidade em estoque');
+  document.getElementById('contentArea').innerHTML = `
+    <div class="form-wrap"><div class="form-card">
+      <div class="field"><label>Produto</label>
+        <select id="f_sel" onchange="preencherCampo('estoque')">${selectOpcoes()}</select></div>
+      <div class="field"><label>Nova Quantidade</label>
+        <input type="number" id="f_val" placeholder="0" min="0"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="mostrarInicio()">Cancelar</button>
+        <button class="btn btn-primary" onclick="atualizarCampo('estoque')">Salvar</button>
+      </div>
+    </div></div>`;
+}
+
+function mostrarAtualizarValidade() {
+  setNav('validade'); setPage('Atualizar Validade', 'Altere a data de vencimento');
+  document.getElementById('contentArea').innerHTML = `
+    <div class="form-wrap"><div class="form-card">
+      <div class="field"><label>Produto</label>
+        <select id="f_sel" onchange="preencherCampo('validade')">${selectOpcoes()}</select></div>
+      <div class="field"><label>Nova Validade</label>
+        <input type="text" id="f_val" placeholder="Ex: 31/12/2025"></div>
+      <div class="btn-row">
+        <button class="btn btn-ghost" onclick="mostrarInicio()">Cancelar</button>
+        <button class="btn btn-primary" onclick="atualizarCampo('validade')">Salvar</button>
+      </div>
+    </div></div>`;
+}
+
+function preencherCampo(campo) {
+  const id = document.getElementById('f_sel').value;
+  const p  = produtos.find(x=>x.id===id);
+  if (p) document.getElementById('f_val').value = p[campo] || '';
+}
+
+async function atualizarCampo(campo) {
+  const id  = document.getElementById('f_sel').value;
+  const val = (document.getElementById('f_val').value||'').trim();
+  if (!id) { toast('Selecione um produto!','erro'); return; }
+  const p = produtos.find(x=>x.id===id);
+  toast('Salvando...','sucesso');
+  const ok = await salvarNoSheet({acao:'atualizar', produtos:[{...p,[campo]:val}]});
+  if (ok) {
+    await carregarProdutos();
+    toast(`${p.nome} atualizado!`,'sucesso');
+    setTimeout(mostrarInicio,1200);
+  } else toast('Erro ao salvar.','erro');
+}
+
+// ── START ──
+inicializar();
+</script>
+</body>
+</html>
