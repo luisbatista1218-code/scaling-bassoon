@@ -788,7 +788,7 @@ function sairAdmin() {
 }
 
 // ════════════════════════════════════════════
-// FUNÇÕES DE AUTOCOMPLETE PARA ADMIN
+// FUNÇÕES DE AUTOCOMPLETE PARA ADMIN (APENAS ISSO FOI ADICIONADO)
 // ════════════════════════════════════════════
 let _adminAutoIdx = -1;
 let _campoAtual = '';
@@ -831,7 +831,6 @@ function selecionarAdminItem(id, campo) {
   document.getElementById(`autoList${campo}`).classList.remove('open');
   _produtoSelecionadoId = id;
   
-  // Se for atualização, preenche o campo com o valor atual
   if (campo === 'preco' || campo === 'estoque' || campo === 'validade') {
     document.getElementById('novoValor').value = p[campo] || '';
   }
@@ -855,10 +854,10 @@ function handleAdminKey(e, campo) {
 }
 
 // ════════════════════════════════════════════
-// REMOVER COM AUTOCOMPLETE
+// REMOVER COM AUTOCOMPLETE (SUBSTITUÍDO)
 // ════════════════════════════════════════════
 function mostrarRemover() {
-  setHeader('🗑️','Remover Produto','Digite o nome do produto');
+  setHeader('🗑️','Remover Produto','Selecione o produto');
   document.getElementById('content').innerHTML = `
     <div class="form-card">
       <div class="form-title">Remover Produto</div>
@@ -877,7 +876,6 @@ function mostrarRemover() {
       <button class="btn btn-danger" style="margin-top:8px" onclick="confirmarRemover()">🗑️ Remover</button>
       <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
     </div>`;
-  document.getElementById('buscaRemover').focus();
 }
 
 function confirmarRemover() {
@@ -909,10 +907,10 @@ async function removerProduto(id) {
 }
 
 // ════════════════════════════════════════════
-// ATUALIZAR PREÇO COM AUTOCOMPLETE
+// ATUALIZAR PREÇO COM AUTOCOMPLETE (SUBSTITUÍDO)
 // ════════════════════════════════════════════
 function mostrarAtualizarPreco() {
-  setHeader('💰','Atualizar Preço','Digite o nome do produto');
+  setHeader('💰','Atualizar Preço','Defina o novo valor');
   document.getElementById('content').innerHTML = `
     <div class="form-card">
       <div class="form-title">Atualizar Preço</div>
@@ -933,14 +931,13 @@ function mostrarAtualizarPreco() {
       <button class="btn btn-primary" style="margin-top:8px" onclick="atualizarCampo('preco')">💰 Atualizar</button>
       <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
     </div>`;
-  document.getElementById('buscapreco').focus();
 }
 
 // ════════════════════════════════════════════
-// ATUALIZAR ESTOQUE COM AUTOCOMPLETE
+// ATUALIZAR ESTOQUE COM AUTOCOMPLETE (SUBSTITUÍDO)
 // ════════════════════════════════════════════
 function mostrarAtualizarEstoque() {
-  setHeader('📦','Atualizar Estoque','Digite o nome do produto');
+  setHeader('📦','Atualizar Estoque','Defina a nova quantidade');
   document.getElementById('content').innerHTML = `
     <div class="form-card">
       <div class="form-title">Atualizar Estoque</div>
@@ -961,14 +958,13 @@ function mostrarAtualizarEstoque() {
       <button class="btn btn-primary" style="margin-top:8px" onclick="atualizarCampo('estoque')">📦 Atualizar</button>
       <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
     </div>`;
-  document.getElementById('buscaestoque').focus();
 }
 
 // ════════════════════════════════════════════
-// ATUALIZAR VALIDADE COM AUTOCOMPLETE
+// ATUALIZAR VALIDADE COM AUTOCOMPLETE (SUBSTITUÍDO)
 // ════════════════════════════════════════════
 function mostrarAtualizarValidade() {
-  setHeader('📅','Atualizar Validade','Digite o nome do produto');
+  setHeader('📅','Atualizar Validade','Defina a nova data');
   document.getElementById('content').innerHTML = `
     <div class="form-card">
       <div class="form-title">Atualizar Validade</div>
@@ -989,7 +985,6 @@ function mostrarAtualizarValidade() {
       <button class="btn btn-primary" style="margin-top:8px" onclick="atualizarCampo('validade')">📅 Atualizar</button>
       <button class="btn btn-ghost" onclick="mostrarAdmin()">← Voltar</button>
     </div>`;
-  document.getElementById('buscavalidade').focus();
 }
 
 // ════════════════════════════════════════════
@@ -1020,7 +1015,7 @@ async function atualizarCampo(campo) {
 }
 
 // ════════════════════════════════════════════
-// CADASTRAR (mantido igual)
+// CADASTRAR (mantido IGUAL)
 // ════════════════════════════════════════════
 function mostrarCadastro() {
   setHeader('➕','Novo Produto','Preencha os dados');
