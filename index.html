@@ -348,14 +348,104 @@ body::before {
 .destaque-row .d-nome { font-size:15px; font-weight:500; }
 .destaque-row .d-preco { font-size:14px; color:var(--accent); font-weight:700; }
 
+/* ===== ALTERAÇÕES SOMENTE PARA PC ===== */
 @media (min-width: 640px) {
   body { align-items: flex-start; justify-content: center; }
   .app { max-width: 100%; min-height: 100vh; }
   .nav { max-width: 100%; left: 0; transform: none; }
-  .content { max-width: 900px; margin: 0 auto; }
-  .menu-grid { grid-template-columns: repeat(4, 1fr); }
-  .form-card { max-width: 520px; }
-  .search-wrap { max-width: 560px; }
+  
+  /* Content esticado até a borda */
+  .content { 
+    max-width: 100%; 
+    margin: 0; 
+    padding: 0 40px; 
+    width: 100%;
+  }
+  
+  /* Grid de cards esticado */
+  .menu-grid { 
+    grid-template-columns: repeat(4, 1fr); 
+    width: 100%;
+  }
+  
+  /* Cards com texto à esquerda */
+  .menu-card {
+    text-align: left;
+    width: 100%;
+  }
+  
+  .menu-card.wide {
+    width: 100%;
+    text-align: left;
+  }
+  
+  /* Formulários esticados */
+  .form-card { 
+    max-width: 100%; 
+    width: 100%;
+    text-align: left;
+  }
+  
+  /* Área de busca esticada */
+  .search-wrap { 
+    max-width: 100%; 
+    width: 100%;
+  }
+  
+  .search-input-row {
+    width: 100%;
+  }
+  
+  .input-icon-wrap {
+    width: 100%;
+  }
+  
+  /* Resultado da consulta esticado */
+  .result-card {
+    width: 100%;
+    text-align: left;
+  }
+  
+  .result-header {
+    text-align: left;
+  }
+  
+  .result-nome, .result-id {
+    text-align: left;
+  }
+  
+  /* Títulos de seção à esquerda */
+  .section-title {
+    text-align: left;
+    width: 100%;
+  }
+  
+  /* Botão Voltar - NOVO */
+  .btn-voltar-consulta {
+    display: inline-block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 14px;
+    margin: 0 0 20px 0;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: left;
+    width: auto;
+  }
+  
+  .btn-voltar-consulta:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  
+  .btn-voltar-consulta:before {
+    content: "← ";
+    margin-right: 4px;
+  }
 }
 </style>
 </head>
@@ -382,7 +472,7 @@ body::before {
   <button class="nav-btn active" id="nav-inicio" onclick="mostrarInicio()">
     <span class="nav-icon">🏠</span><span class="nav-label">Início</span>
   </button>
-  <button class="nav-btn" id="nav-busca" onclick="mostrarConsulta()">
+  <button class="nav-btn" id="nav-busca" onclick="mostrarConsultaComVoltar()">
     <span class="nav-icon">🔍</span><span class="nav-label">Buscar</span>
   </button>
   <button class="nav-btn" id="nav-admin" onclick="abrirAdmin()">
@@ -515,7 +605,7 @@ function mostrarInicio() {
   document.getElementById('content').innerHTML = `
     <p class="section-title">Acesso rápido</p>
     <div class="menu-grid">
-      <div class="menu-card" onclick="mostrarConsulta()">
+      <div class="menu-card" onclick="mostrarConsultaComVoltar()">
         <span class="icon">🔍</span>
         <span class="label">Consultar</span>
         <span class="desc">Preços e estoque</span>
@@ -534,7 +624,7 @@ function mostrarInicio() {
 function irParaProduto(id) {
   const p = produtos.find(x => x.id === id);
   if (!p) return;
-  mostrarConsulta();
+  mostrarConsultaComVoltar();
   setTimeout(() => {
     document.getElementById('nomeBusca').value = p.nome;
     mostrarResultadoConsulta(p);
@@ -542,8 +632,21 @@ function irParaProduto(id) {
 }
 
 // ════════════════════════════════════════════
-// CONSULTA COM AUTOCOMPLETE
+// CONSULTA COM AUTOCOMPLETE E BOTÃO VOLTAR
 // ════════════════════════════════════════════
+function mostrarConsultaComVoltar() {
+  mostrarConsulta();
+  setTimeout(() => {
+    const content = document.getElementById('content');
+    if (content && !document.querySelector('.btn-voltar-consulta')) {
+      const voltarBtn = document.createElement('div');
+      voltarBtn.className = 'btn-voltar-consulta';
+      voltarBtn.onclick = () => mostrarInicio();
+      content.insertBefore(voltarBtn, content.firstChild);
+    }
+  }, 100);
+}
+
 function mostrarConsulta() {
   setNav('busca');
   setHeader('🔍', 'Buscar Produto', 'Digite o nome do produto');
