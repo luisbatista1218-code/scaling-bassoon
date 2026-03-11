@@ -520,8 +520,8 @@ async function inicializar() {
 // 👇 NOVA FUNÇÃO: carregar o hash da coluna F
 async function carregarHashSenha() {
   try {
-    // Assumindo que a aba da senha é a segunda aba (índice 2)
-    const senhaUrl = `https://opensheet.elk.sh/${PLANILHA_ID}/2`;
+    // Assumindo que a aba da senha é a segunda aba (índice 1)
+    const senhaUrl = `https://opensheet.elk.sh/${PLANILHA_ID}/1`;
     const r = await fetch(senhaUrl);
     const dados = await r.json();
     if (dados && dados.length > 0) {
