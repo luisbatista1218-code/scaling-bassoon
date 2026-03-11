@@ -1,6 +1,6 @@
 {
-  "name": "Agendamento",
-  "short_name": "servico1",
+  "name": "estok",
+  "short_name": "estok",
   "start_url": "/index.html",
   "display": "standalone",
   "background_color": "#0b1120",
@@ -8,12 +8,12 @@
   "orientation": "portrait",
   "icons": [
     {
-      "src": "/icon-02.png",
+      "src": "/icon-001.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "/icon-01.png",
+      "src": "/icon-002.png",
       "sizes": "512x512",
       "type": "image/png"
     }
