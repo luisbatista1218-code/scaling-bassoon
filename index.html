@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Gestão de Produtos</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<!-- Biblioteca bcrypt para hash -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bcryptjs/2.4.3/bcrypt.min.js"></script>
 <style>
 :root {
@@ -50,6 +51,7 @@ body::before {
   padding-bottom:88px;
 }
 
+/* HEADER */
 .header {
   padding: 28px 24px 20px;
   display:flex; align-items:center; gap:14px;
@@ -67,6 +69,7 @@ body::before {
 }
 .header-sub { font-size:13px; color:var(--muted); margin-top:2px; }
 
+/* CONTENT */
 .content { flex:1; padding:0 20px; }
 
 .section-title {
@@ -76,6 +79,7 @@ body::before {
   color:var(--muted); margin:24px 0 10px;
 }
 
+/* GRID DE CARDS */
 .menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
 
 .menu-card {
@@ -114,6 +118,7 @@ body::before {
 .menu-card.danger .icon,
 .menu-card.danger .label { color:var(--red); }
 
+/* BUSCA */
 .search-wrap { position:relative; }
 .search-input-row { display:flex; gap:10px; }
 .input-icon-wrap { position:relative; flex:1; }
@@ -135,6 +140,7 @@ body::before {
 }
 .scan-btn:hover { border-color:var(--accent); }
 
+/* AUTOCOMPLETE */
 .autocomplete-list {
   position:absolute; top:calc(100% + 6px); left:0; right:0;
   background:var(--card); border:1px solid var(--border); border-radius:12px;
@@ -159,6 +165,7 @@ body::before {
   font-size:13px; color:var(--accent); font-weight:600; white-space:nowrap;
 }
 
+/* RESULTADO */
 .result-card {
   background:var(--card); border:1px solid var(--border);
   border-radius:var(--radius); overflow:hidden; margin-top:16px;
@@ -188,6 +195,7 @@ body::before {
 .rvalue.estoque { color:var(--green); }
 .rvalue.validade{ color:var(--orange); }
 
+/* FORMULÁRIOS */
 .form-card {
   background:var(--card); border:1px solid var(--border);
   border-radius:var(--radius); padding:22px; margin-top:12px;
@@ -211,6 +219,7 @@ body::before {
 .field select:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(79,142,247,.12); }
 .field select option { background:var(--card); }
 
+/* BOTÕES */
 .btn {
   width:100%; padding:15px; border-radius:12px; border:none;
   font-size:15px; font-weight:700; font-family:'Syne',sans-serif;
@@ -234,6 +243,7 @@ body::before {
 }
 .btn-danger:hover { background:rgba(247,90,90,.2); }
 
+/* TOAST */
 #toast {
   position:fixed; bottom:96px; left:50%; transform:translateX(-50%) translateY(16px);
   background:var(--card); border:1px solid var(--border); border-radius:12px;
@@ -247,6 +257,7 @@ body::before {
 #toast.sucesso { border-color:rgba(34,211,160,.4); color:var(--green); }
 #toast.erro    { border-color:rgba(247,90,90,.4);  color:var(--red); }
 
+/* MODAL */
 .modal-overlay {
   position:fixed; inset:0;
   background:rgba(0,0,0,.75); backdrop-filter:blur(8px);
@@ -279,6 +290,7 @@ body::before {
 .modal-actions .btn { flex:1; margin-top:0; }
 .modal-err { color:var(--red); font-size:13px; margin:-4px 0 10px; display:none; }
 
+/* campo senha com show/hide */
 .pass-wrap { position:relative; margin-bottom:12px; }
 .pass-input {
   width:100%; background:var(--surface); border:1px solid var(--border);
@@ -296,6 +308,7 @@ body::before {
 .pass-toggle:hover { color:var(--text); }
 .pass-toggle svg { width:18px; height:18px; }
 
+/* NAV */
 .nav {
   position:fixed; bottom:0; left:50%; transform:translateX(-50%);
   width:100%; max-width:440px;
@@ -313,6 +326,7 @@ body::before {
 .nav-icon { font-size:20px; line-height:1; }
 .nav-label { font-size:11px; font-weight:500; }
 
+/* MISC */
 .loading-wrap {
   display:flex; flex-direction:column; align-items:center; gap:16px;
   padding:60px 20px; color:var(--muted);
@@ -336,28 +350,104 @@ body::before {
 .destaque-row .d-nome { font-size:15px; font-weight:500; }
 .destaque-row .d-preco { font-size:14px; color:var(--accent); font-weight:700; }
 
-.btn-gerar-hash {
-  background: var(--accent);
-  color: white;
-  border: none;
-  border-radius: 30px;
-  padding: 12px 20px;
-  font-size: 16px;
-  font-weight: bold;
-  margin: 10px 0;
-  cursor: pointer;
-  width: 100%;
-  box-shadow: 0 4px 15px rgba(79,142,247,.5);
-}
-
+/* ===== ALTERAÇÕES SOMENTE PARA PC ===== */
 @media (min-width: 640px) {
   body { align-items: flex-start; justify-content: center; }
   .app { max-width: 100%; min-height: 100vh; }
   .nav { max-width: 100%; left: 0; transform: none; }
-  .content { max-width: 900px; margin: 0 auto; }
-  .menu-grid { grid-template-columns: repeat(4, 1fr); }
-  .form-card { max-width: 520px; }
-  .search-wrap { max-width: 560px; }
+  
+  /* Content esticado até a borda */
+  .content { 
+    max-width: 100%; 
+    margin: 0; 
+    padding: 0 40px; 
+    width: 100%;
+  }
+  
+  /* Grid de cards esticado */
+  .menu-grid { 
+    grid-template-columns: repeat(4, 1fr); 
+    width: 100%;
+  }
+  
+  /* Cards com texto à esquerda */
+  .menu-card {
+    text-align: left;
+    width: 100%;
+  }
+  
+  .menu-card.wide {
+    width: 100%;
+    text-align: left;
+  }
+  
+  /* Formulários esticados */
+  .form-card { 
+    max-width: 100%; 
+    width: 100%;
+    text-align: left;
+  }
+  
+  /* Área de busca esticada */
+  .search-wrap { 
+    max-width: 100%; 
+    width: 100%;
+  }
+  
+  .search-input-row {
+    width: 100%;
+  }
+  
+  .input-icon-wrap {
+    width: 100%;
+  }
+  
+  /* Resultado da consulta esticado */
+  .result-card {
+    width: 100%;
+    text-align: left;
+  }
+  
+  .result-header {
+    text-align: left;
+  }
+  
+  .result-nome, .result-id {
+    text-align: left;
+  }
+  
+  /* Títulos de seção à esquerda */
+  .section-title {
+    text-align: left;
+    width: 100%;
+  }
+  
+  /* Botão Voltar - NOVO */
+  .btn-voltar-consulta {
+    display: inline-block;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 10px 20px;
+    border-radius: 12px;
+    text-decoration: none;
+    font-size: 14px;
+    margin: 0 0 20px 0;
+    cursor: pointer;
+    transition: all .2s;
+    text-align: left;
+    width: auto;
+  }
+  
+  .btn-voltar-consulta:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  
+  .btn-voltar-consulta:before {
+    content: "← ";
+    margin-right: 4px;
+  }
 }
 </style>
 </head>
@@ -365,7 +455,7 @@ body::before {
 
 <!-- BOTÃO PARA GERAR HASH NO CELULAR -->
 <div style="position:fixed; top:10px; right:10px; z-index:9999;">
-  <button onclick="gerarHashPrompt()" style="background:var(--accent); color:white; border:none; border-radius:30px; padding:10px 20px; font-size:14px; font-weight:bold; box-shadow:0 4px 15px rgba(79,142,247,.5);">
+  <button onclick="gerarHashPrompt()" style="background:var(--accent); color:white; border:none; border-radius:30px; padding:12px 20px; font-size:16px; font-weight:bold; box-shadow:0 4px 15px rgba(79,142,247,.5);">
     🔐 GERAR HASH
   </button>
 </div>
@@ -386,11 +476,12 @@ body::before {
   </div>
 </div>
 
+<!-- NAV -->
 <nav class="nav">
   <button class="nav-btn active" id="nav-inicio" onclick="mostrarInicio()">
     <span class="nav-icon">🏠</span><span class="nav-label">Início</span>
   </button>
-  <button class="nav-btn" id="nav-busca" onclick="mostrarConsulta()">
+  <button class="nav-btn" id="nav-busca" onclick="mostrarConsultaComVoltar()">
     <span class="nav-icon">🔍</span><span class="nav-label">Buscar</span>
   </button>
   <button class="nav-btn" id="nav-admin" onclick="abrirAdmin()">
@@ -398,6 +489,7 @@ body::before {
   </button>
 </nav>
 
+<!-- MODAL -->
 <div class="modal-overlay" id="modalOverlay">
   <div class="modal" id="modalBox">
     <div class="modal-icon"    id="modalIcon"></div>
@@ -408,17 +500,20 @@ body::before {
   </div>
 </div>
 
+<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
+// ── CONFIG ──
 const PLANILHA_ID        = '1LxDTFAteG6bJppvJOp_9SnMBA72-1hEtyy9NCbRrl48';
 const API_URL_LEITURA    = `https://opensheet.elk.sh/${PLANILHA_ID}/1`;
 const SCRIPT_URL_ESCRITA = 'https://script.google.com/macros/s/AKfycbyTJEfr1u5zrKBXN9Jt0CpC66UAFpnHl05iYih5gqXYHUC9tY5lgxCqZ4gYEo2t-gHp/exec';
 
-let produtos = [];
+// 🔐 VARIÁVEIS PARA HASH
+let produtos     = [];
 let usuarioAdmin = false;
 let produtoSelecionadoId = null;
-let hashAdmin = '';
+let hashAdmin = ''; // 👈 NOVO: vai armazenar o hash da senha
 
 // 🎯 FUNÇÃO PARA GERAR HASH NO CELULAR
 function gerarHashPrompt() {
@@ -433,18 +528,22 @@ function gerarHashPrompt() {
   }
 }
 
+// ── INIT ──
 async function inicializar() {
   await carregarProdutos();
-  await carregarHashSenha();
+  await carregarHashSenha(); // 👈 NOVO: carrega o hash da planilha
   mostrarInicio();
 }
 
+// 👇 NOVA FUNÇÃO: carregar o hash da coluna F
 async function carregarHashSenha() {
   try {
+    // Assumindo que a aba da senha é a segunda aba (índice 2)
     const senhaUrl = `https://opensheet.elk.sh/${PLANILHA_ID}/2`;
     const r = await fetch(senhaUrl);
     const dados = await r.json();
     if (dados && dados.length > 0) {
+      // Pega o valor da coluna F (senha)
       hashAdmin = dados[0].senha || dados[0].F || '';
     }
   } catch(e) { 
@@ -452,18 +551,19 @@ async function carregarHashSenha() {
   }
 }
 
+// ── NAV ──
 function setNav(id) {
   document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
   const el = document.getElementById('nav-' + id);
   if (el) el.classList.add('active');
 }
-
 function setHeader(icon, title, sub) {
-  document.getElementById('headerIcon').textContent = icon;
+  document.getElementById('headerIcon').textContent  = icon;
   document.getElementById('headerTitle').textContent = title;
-  document.getElementById('headerSub').textContent = sub;
+  document.getElementById('headerSub').textContent   = sub;
 }
 
+// ── CARREGAR PRODUTOS ──
 async function carregarProdutos() {
   try {
     const r = await fetch(API_URL_LEITURA);
@@ -480,6 +580,7 @@ async function carregarProdutos() {
   } catch(e) { console.error(e); produtos = []; }
 }
 
+// ── SALVAR ──
 async function salvarNoSheet(dados) {
   try {
     const r = await fetch(SCRIPT_URL_ESCRITA, {
@@ -490,11 +591,12 @@ async function salvarNoSheet(dados) {
   } catch(e) { console.error(e); return false; }
 }
 
+// ── MODAL ──
 function abrirModal({ icon='', title='', desc='', body='', actions=[] }) {
-  document.getElementById('modalIcon').textContent = icon;
+  document.getElementById('modalIcon').textContent  = icon;
   document.getElementById('modalTitle').textContent = title;
-  document.getElementById('modalDesc').textContent = desc;
-  document.getElementById('modalBody').innerHTML = body;
+  document.getElementById('modalDesc').textContent  = desc;
+  document.getElementById('modalBody').innerHTML    = body;
   document.getElementById('modalActions').innerHTML = actions.map(a =>
     `<button class="btn ${a.cls||'btn-ghost'}" onclick="${a.fn}">${a.label}</button>`
   ).join('');
@@ -504,15 +606,14 @@ function abrirModal({ icon='', title='', desc='', body='', actions=[] }) {
     if (inp) inp.focus();
   }, 200);
 }
-
 function fecharModal() {
   document.getElementById('modalOverlay').classList.remove('open');
 }
-
 document.getElementById('modalOverlay').addEventListener('click', function(e) {
   if (e.target === this) fecharModal();
 });
 
+// ── TOAST ──
 let _tt;
 function toast(msg, tipo='sucesso') {
   const el = document.getElementById('toast');
@@ -523,6 +624,9 @@ function toast(msg, tipo='sucesso') {
   _tt = setTimeout(() => el.classList.remove('show'), 3000);
 }
 
+// ════════════════════════════════════════════
+// TELA INICIAL
+// ════════════════════════════════════════════
 function mostrarInicio() {
   setNav('inicio');
   setHeader('🏪', 'Gestão de Produtos',
@@ -542,7 +646,7 @@ function mostrarInicio() {
   document.getElementById('content').innerHTML = `
     <p class="section-title">Acesso rápido</p>
     <div class="menu-grid">
-      <div class="menu-card" onclick="mostrarConsulta()">
+      <div class="menu-card" onclick="mostrarConsultaComVoltar()">
         <span class="icon">🔍</span>
         <span class="label">Consultar</span>
         <span class="desc">Preços e estoque</span>
@@ -561,11 +665,27 @@ function mostrarInicio() {
 function irParaProduto(id) {
   const p = produtos.find(x => x.id === id);
   if (!p) return;
-  mostrarConsulta();
+  mostrarConsultaComVoltar();
   setTimeout(() => {
     document.getElementById('nomeBusca').value = p.nome;
     mostrarResultadoConsulta(p);
   }, 50);
+}
+
+// ════════════════════════════════════════════
+// CONSULTA COM AUTOCOMPLETE E BOTÃO VOLTAR
+// ════════════════════════════════════════════
+function mostrarConsultaComVoltar() {
+  mostrarConsulta();
+  setTimeout(() => {
+    const content = document.getElementById('content');
+    if (content && !document.querySelector('.btn-voltar-consulta')) {
+      const voltarBtn = document.createElement('div');
+      voltarBtn.className = 'btn-voltar-consulta';
+      voltarBtn.onclick = () => mostrarInicio();
+      content.insertBefore(voltarBtn, content.firstChild);
+    }
+  }, 100);
 }
 
 function mostrarConsulta() {
@@ -596,7 +716,7 @@ function mostrarConsulta() {
 let _autoIdx = -1;
 
 function filtrarAuto() {
-  const val = (document.getElementById('nomeBusca').value || '').trim().toLowerCase();
+  const val  = (document.getElementById('nomeBusca').value || '').trim().toLowerCase();
   const list = document.getElementById('autoList');
   _autoIdx = -1;
   if (!val) { list.classList.remove('open'); return; }
@@ -624,7 +744,7 @@ function highlight(nome, q) {
 }
 
 function handleKey(e) {
-  const list = document.getElementById('autoList');
+  const list  = document.getElementById('autoList');
   const items = list ? list.querySelectorAll('.autocomplete-item') : [];
   if (!list || !list.classList.contains('open')) {
     if (e.key === 'Enter') fazerConsultaTexto();
@@ -665,12 +785,22 @@ function fazerConsultaTexto() {
   }
 }
 
+function simularScan() {
+  const lista = produtos.filter(p => p.nome);
+  if (!lista.length) return;
+  const p = lista[Math.floor(Math.random()*lista.length)];
+  const inp = document.getElementById('nomeBusca');
+  if (inp) { inp.value = p.nome; filtrarAuto(); }
+  setTimeout(() => selecionarItem(p.id), 80);
+}
+
 document.addEventListener('click', function(e) {
   const list = document.getElementById('autoList');
   if (list && !list.contains(e.target) && e.target.id !== 'nomeBusca')
     list.classList.remove('open');
 });
 
+// ── RESULTADO ──
 function mostrarResultadoConsulta(p) {
   const preco = parseFloat(p.preco||0);
   let rows = `
@@ -698,6 +828,9 @@ function mostrarResultadoConsulta(p) {
     </div>`;
 }
 
+// ════════════════════════════════════════════
+// ADMIN — modal de senha (AGORA USA HASH!)
+// ════════════════════════════════════════════
 function abrirAdmin() {
   if (usuarioAdmin) { mostrarAdmin(); return; }
   abrirModal({
@@ -735,6 +868,7 @@ function toggleSenha() {
   }
 }
 
+// 👇 FUNÇÃO MODIFICADA: compara com HASH
 function confirmarSenha() {
   const val = document.getElementById('senhaInput').value;
   
@@ -743,6 +877,7 @@ function confirmarSenha() {
     return;
   }
   
+  // bcrypt.compareSync compara a senha digitada com o hash
   if (bcrypt.compareSync(val, hashAdmin)) {
     usuarioAdmin = true;
     fecharModal();
@@ -754,6 +889,7 @@ function confirmarSenha() {
   }
 }
 
+// ── PAINEL ADMIN ──
 function mostrarAdmin() {
   setNav('admin');
   setHeader('⚙️', 'Administração', 'Gerencie seu estoque');
@@ -798,12 +934,14 @@ function confirmarSairAdmin() {
     ]
   });
 }
-
 function sairAdmin() {
   usuarioAdmin = false; fecharModal(); mostrarInicio();
   toast('Sessão encerrada', 'sucesso');
 }
 
+// ════════════════════════════════════════════
+// FUNÇÕES DE AUTOCOMPLETE PARA ADMIN
+// ════════════════════════════════════════════
 function filtrarAdminAuto(campo) {
   const val = document.getElementById(`busca${campo}`).value.toLowerCase();
   const list = document.getElementById(`autoList${campo}`);
@@ -843,6 +981,9 @@ function selecionarAdminItem(id, campo) {
   }
 }
 
+// ════════════════════════════════════════════
+// CADASTRAR
+// ════════════════════════════════════════════
 function mostrarCadastro() {
   setHeader('➕','Novo Produto','Preencha os dados');
   document.getElementById('content').innerHTML = `
@@ -877,6 +1018,9 @@ async function cadastrarProduto() {
   else toast('Erro ao cadastrar.','erro');
 }
 
+// ════════════════════════════════════════════
+// REMOVER COM AUTOCOMPLETE
+// ════════════════════════════════════════════
 function mostrarRemover() {
   setHeader('🗑️','Remover Produto','Selecione o produto');
   document.getElementById('content').innerHTML = `
@@ -926,6 +1070,9 @@ async function removerProduto(id) {
   } else toast('Erro ao remover.','erro');
 }
 
+// ════════════════════════════════════════════
+// ATUALIZAR PREÇO COM AUTOCOMPLETE
+// ════════════════════════════════════════════
 function mostrarAtualizarPreco() {
   setHeader('💰','Atualizar Preço','Defina o novo valor');
   document.getElementById('content').innerHTML = `
@@ -949,6 +1096,9 @@ function mostrarAtualizarPreco() {
     </div>`;
 }
 
+// ════════════════════════════════════════════
+// ATUALIZAR ESTOQUE COM AUTOCOMPLETE
+// ════════════════════════════════════════════
 function mostrarAtualizarEstoque() {
   setHeader('📦','Atualizar Estoque','Defina a nova quantidade');
   document.getElementById('content').innerHTML = `
@@ -972,6 +1122,9 @@ function mostrarAtualizarEstoque() {
     </div>`;
 }
 
+// ════════════════════════════════════════════
+// ATUALIZAR VALIDADE COM AUTOCOMPLETE
+// ════════════════════════════════════════════
 function mostrarAtualizarValidade() {
   setHeader('📅','Atualizar Validade','Defina a nova data');
   document.getElementById('content').innerHTML = `
@@ -995,6 +1148,9 @@ function mostrarAtualizarValidade() {
     </div>`;
 }
 
+// ════════════════════════════════════════════
+// ATUALIZAR CAMPO (compartilhado)
+// ════════════════════════════════════════════
 async function atualizarCampo(campo) {
   if (!produtoSelecionadoId) { 
     toast('Selecione um produto!','erro'); 
@@ -1019,6 +1175,7 @@ async function atualizarCampo(campo) {
   } else toast('Erro ao atualizar.','erro');
 }
 
+// ── START ──
 inicializar();
 </script>
 </body>
