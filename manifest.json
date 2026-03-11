@@ -1,0 +1,21 @@
+{
+  "name": "Agendamento",
+  "short_name": "servico1",
+  "start_url": "/index.html",
+  "display": "standalone",
+  "background_color": "#0b1120",
+  "theme_color": "#1a2639",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-02.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/icon-01.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
